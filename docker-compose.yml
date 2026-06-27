@@ -1,0 +1,8 @@
+services:
+  api:
+    build: .
+    container_name: yellamma-api
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/app
