@@ -1,17 +1,13 @@
 from fastapi import FastAPI
+from app.api.routes.chat import router as chat_router
 
 app = FastAPI(title="Yellamma AI Receptionist")
 
+app.include_router(chat_router)
+
 
 @app.get("/")
-def home():
+def root():
     return {
         "message": "Welcome to Yellamma AI Receptionist"
-    }
-
-
-@app.get("/health")
-def health():
-    return {
-        "status": "running"
     }
