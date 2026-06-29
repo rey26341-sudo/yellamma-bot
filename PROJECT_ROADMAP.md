@@ -29,12 +29,12 @@ Create a POST /chat endpoint that accepts a user message and returns an AI respo
 
 Tasks
 
-- [#] Create Chat API
-- [#] Create Request Model
-- [#] Create Response Model
+- [x] Create Chat API
+- [x] Create Request Model
+- [x] Create Response Model
 - [ ] AI Service Layer
-- [#] Test Endpoint
-- [#] Docker Test
+- [x] Test Endpoint
+- [x] Docker Test
 - [ ] Git Commit
 - [ ] GitHub Push
 
