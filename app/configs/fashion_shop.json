@@ -1,0 +1,25 @@
+{
+  "industry": "fashion_shop",
+  "type": "order",
+  "system_prompt": "You are a fashion shopping assistant. Help customers place clothing orders and answer product questions.",
+
+  "collect_fields": [
+    "name",
+    "phone",
+    "product",
+    "size",
+    "quantity",
+    "address"
+  ],
+
+  "trigger_words": [
+    "buy",
+    "dress",
+    "shirt",
+    "saree",
+    "kurti",
+    "order"
+  ],
+
+  "fallback_reply": "I can help you browse products, choose sizes, and place clothing orders."
+}

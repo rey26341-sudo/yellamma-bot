@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Receptionist Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #chat {
+            background: white;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+
+        .user {
+            margin: 10px;
+            text-align: right;
+            color: blue;
+        }
+
+        .bot {
+            margin: 10px;
+            text-align: left;
+            color: green;
+        }
+
+        input {
+            width: 75%;
+            padding: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Yellamma AI Receptionist</h1>
+
+<div id="chat"></div>
+
+<input id="message" placeholder="Ask something...">
+<button onclick="sendMessage()">Send</button>
+
+
+<script>
+
+async function sendMessage(){
+
+    let input = document.getElementById("message");
+    let message = input.value;
+
+    if(!message) return;
+
+
+    let chat = document.getElementById("chat");
+
+
+    chat.innerHTML += 
+    `<div class="user">You: ${message}</div>`;
+
+
+    input.value="";
+
+
+    let response = await fetch("http://127.0.0.1:8001/chat",
+    {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            business_id:"salon",
+            message:message
+        })
+    });
+
+
+    let data = await response.json();
+
+
+    chat.innerHTML += 
+    `<div class="bot">AI: ${data.reply}</div>`;
+
+
+    chat.scrollTop = chat.scrollHeight;
+
+}
+
+</script>
+
+</body>
+</html>
+

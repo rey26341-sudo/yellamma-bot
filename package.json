@@ -1,0 +1,29 @@
+{
+  "name": "yellamma-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rey26341-sudo/yellamma-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rey26341-sudo/yellamma-bot/issues"
+  },
+  "homepage": "https://github.com/rey26341-sudo/yellamma-bot#readme",
+  "dependencies": {
+    "axios": "^1.18.1",
+    "body-parser": "^2.3.0",
+    "express": "^5.2.1"
+  }
+}

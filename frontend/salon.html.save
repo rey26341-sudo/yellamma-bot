@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SALON-BOT </title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #faf7f2;
+      color: #2f2f2f;
+    }
+
+    header {
+      background: white;
+      padding: 20px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .back-link {
+      color: #6d45d8;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 45px 20px 25px;
+    }
+
+    .hero h1 {
+      margin-bottom: 10px;
+      font-size: 38px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #555;
+    }
+
+    .demo-layout {
+      max-width: 1050px;
+      margin: 20px auto 60px;
+      padding: 0 20px;
+      display: flex;
+      gap: 35px;
+      align-items: flex-start;
+    }
+
+    .chat-card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.10);
+      overflow: hidden;
+      flex: 1.2;
+    }
+
+    .chat-header {
+      background: #8b5cf6;
+      color: white;
+      padding: 18px 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #chat {
+      height: 360px;
+      overflow-y: auto;
+      padding: 20px;
+      background: #fcfbff;
+    }
+
+    .message {
+      margin: 12px 0;
+      max-width: 80%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      line-height: 1.4;
+    }
+
+    .bot {
+      background: #eee8ff;
+      color: #333;
+    }
+
+    .user {
+      background: #8b5cf6;
+      color: white;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .quick-actions {
+      padding: 12px 18px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .quick-actions button {
+      border: 1px solid #d8c8ff;
+      background: white;
+      color: #6d45d8;
+      border-radius: 20px;
+      padding: 9px 12px;
+      cursor: pointer;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      padding: 18px;
+    }
+
+    #message {
+      flex: 1;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .send-button {
+      border: none;
+      border-radius: 8px;
+  
+    background: #8b5cf6;
+      color: white;
+      padding: 13px 18px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .features {
+      flex: 0.8;
+      background: white;
+      border-radius: 18px;
+      padding: 30px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+    }
+
+    .features h2 {
+      margin-top: 0;
+    }
+
+    .features p {
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .feature-item {
+      margin: 18px 0;
+      font-size: 16px;
+    }
+
+   .salon-image {
+  max-width: 1050px;
+  height: 260px;
+  margin: 0 auto 25px;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+}
+
+.salon-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.salon-image-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: end;
+  padding: 28px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.62));
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+}
+    @media (max-width: 800px) {
+      .demo-layout {
+        flex-direction: column;
+      }
+
+      .chat-card, .features {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">🙏 Yellamma AI</div>
+    <a class="back-link" href="/">← Back to Home</a>
+  </header>
+
+  <section class="hero">
+    <h1>SALON-BOT AI RECEPTION SPOT</h1>
+    <p>Give salon customers instant answers about services, pricing and appointments — 24/7.</p>
+  </section>
+
+  <main class="demo-layout">
+    <section class="chat-card">
+      <div class="chat-header">SALON-BOT CHATPAGE <span>🟢</span></div>
+
+      <div id="chat">
+        <div class="message bot">👋 Welcome to salon reception spot. Ask about services, bridal packages, pricing, location or appointments.</div>
+      </div>
+
+      <div class="quick-actions">
+        <button onclick="quickMessage('What salon services do you offer?')">Services</button>
+        <button onclick="quickMessage('What are your prices?')">Pricing</button>
+        <button onclick="quickMessage('Tell me about bridal makeup packages')">Bridal Packages</button>
+        <button onclick="quickMessage('How can I book an appointment?')">Book Appointment</button>
+      </div>
+
+      <div class="input-area">
+        <input id="message" type="text" placeholder="Type your message..." onkeydown="if(event.key === 'Enter') sendMessage()">
+        <button class="send-button" onclick="sendMessage()">Send</button>
+      </div>
+    </section>
+
+    <aside class="features">
+      <h2>For Salon Owners</h2>
+      <p>Use this page to show how an AI receptionist can answer routine customer enquiries even when staff are busy with clients.</p>
+      <div class="feature-item">✓ Answers service and pricing questions</div>
+      <div class="feature-item">✓ Supports appointment enquiries</div>
+      <div class="feature-item">✓ Available after business hours</div>
+      <div class="feature-item">✓ Can be customized with the salon’s own information</div>
+    </aside>
+  </main>
+
+  <script>
+    function addMessage(text, sender) {
+      const chat = document.getElementById("chat");
+      const message = document.createElement("div");
+      message.className = "message " + sender;
+      message.textContent = text;
+      chat.appendChild(message);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function quickMessage(text) {
+      document.getElementById("message").value = text;
+      sendMessage();
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("message");
+      const message = input.value.trim();
+
+      if (!message) return;
+
+      addMessage(message, "user");
+      input.value = "";
+
+      try {
+        const response = await fetch("http://127.0.0.1:8001/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            business_id: "salon",
+            message: message
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || "The AI service returned an error.");
+        }
+
+        addMessage(data.reply || "I could not generate a reply.", "bot");
+      } catch (error) {
+        addMessage("The AI backend is not connected yet. Start the backend on port 8001, then try again.", "bot");
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
