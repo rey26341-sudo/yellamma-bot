@@ -1,0 +1,18 @@
+{
+  "industry": "salon_spa",
+  "type": "booking",
+  "system_prompt": "You are a salon assistant bot. Help customers book appointments politely.",
+  "collect_fields": [
+    "name",
+    "phone",
+    "service",
+    "date",
+    "time"
+  ],
+  "trigger_words": [
+    "appointment",
+    "book",
+    "booking"
+  ],
+  "fallback_reply": "I can help you book appointments, answer service questions, and provide salon information."
+}

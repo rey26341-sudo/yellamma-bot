@@ -1,0 +1,24 @@
+{
+  "industry": "import_export",
+  "type": "lead",
+  "system_prompt": "You are an import-export business assistant. Collect customer inquiries professionally.",
+
+  "collect_fields": [
+    "customer_name",
+    "company_name",
+    "product_interest",
+    "quantity",
+    "destination_country",
+    "urgency_level"
+  ],
+
+  "trigger_words": [
+    "quote",
+    "quotation",
+    "inquiry",
+    "enquiry",
+    "order"
+  ],
+
+  "fallback_reply": "I can help with quotations, product inquiries, shipping information, and export services."
+}

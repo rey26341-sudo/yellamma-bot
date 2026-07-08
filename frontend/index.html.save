@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yellamma AI | AI Receptionist Solutions</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #faf7f2;
+      color: #2f2f2f;
+    }
+
+    header {
+      background: #ffffff;
+      padding: 20px 8%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    nav {
+      display: flex;
+      gap: 24px;
+    }
+
+    nav a {
+      color: #333;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: #7c4dff;
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 90px 20px 70px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 48px;
+      line-height: 1.15;
+    }
+
+    .hero p {
+      max-width: 700px;
+      margin: 22px auto 30px;
+      color: #5d5d5d;
+      font-size: 20px;
+      line-height: 1.5;
+    }
+
+    .primary-button {
+      display: inline-block;
+      border: none;
+      border-radius: 9px;
+      background: #8b5cf6;
+      color: #ffffff;
+      padding: 15px 28px;
+      font-size: 17px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .primary-button:hover {
+      background: #7445e8;
+      transform: translateY(-2px);
+    }
+
+    .section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 55px 20px 75px;
+      text-align: center;
+    }
+
+    .section h2 {
+      margin: 0 0 32px;
+      font-size: 32px;
+    }
+
+    .cards {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      width: 290px;
+      min-height: 190px;
+      padding: 30px 24px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+      text-align: left;
+    }
+
+    .card h3 {
+      margin: 0 0 14px;
+      font-size: 22px;
+    }
+
+    .card p {
+      margin: 0;
+      color: #5d5d5d;
+      line-height: 1.55;
+    }
+
+    .card-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #7c4dff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .contact-section {
+      padding: 65px 20px;
+      background: #2e1a47;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .contact-section h2 {
+      margin: 0 0 14px;
+      font-size: 32px;
+    }
+
+    .contact-section p {
+      margin: 0 auto 25px;
+      max-width: 650px;
+      color: #e6dcff;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .contact-button {
+      display: inline-block;
+      padding: 14px 24px;
+      border-radius: 9px;
+      background: #ffffff;
+      color: #4c2b7d;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    footer {
+      padding: 22px;
+      background: #ffffff;
+      color: #666;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        padding: 18px 20px;
+      }
+
+      nav {
+        gap: 14px;
+      }
+
+      nav a {
+        font-size: 14px;
+      }
+
+      .logo {
+        font-size: 21px;
+      }
+
+      .hero {
+        padding: 65px 20px 50px;
+      }
+
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .hero p {
+        font-size: 17px;
+      }
+
+      .section h2,
+      .contact-section h2 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">🙏 Yellamma AI</div>
+
+    <nav>
+      <a href="/">Home</a>
+      <a href="#solutions">Solutions</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Your AI Receptionist for Every Business</h1>
+
+      <p>
+        Yellamma AI helps businesses answer customer enquiries, support appointments
+        and provide instant information around the clock.
+      </p>
+
+      <a class="primary-button" href="salon.html">Try Nax Bot Salon Demo</a>
+    </section>
+
+    <section id="solutions" class="section">
+      <h2>AI Solutions</h2>
+
+      <div class="cards">
+        <article class="card">
+          <h3>💇 Salon & Beauty</h3>
+          <p>
+            Help customers ask about services, bridal packages, pricing and appointment enquiries.
+          </p>
+          <a class="card-link" href="salon.html">Try Nax Bot →</a>
+        </article>
+
+        <article class="card">
+          <h3>🏥 Healthcare</h3>
+          <p>
+            Support patients with department details, appointment enquiries and clinic information.
+          </p>
+          <a class="card-link" href="#contact">Coming soon →</a>
+        </article>
+
+        <article class="card">
+          <h3>📦 Export & Trade</h3>
+          <p>
+            Answer product, MOQ, shipping and customer enquiries for export businesses.
+          </p>
+          <a class="card-link" href="#contact">Coming soon →</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+      <h2>Want an AI assistant for your business?</h2>
+      <p>
+        Yellamma AI can be customized with your business services, prices,
+        operating hours, location and customer-support workflow.
+      </p>
+
+      <a class="contact-button" href="mailto:joiedevivrewomen@gmail.com">
+        Request a Demo
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 NACHIS NAXBOT
+ Solutions
+  </footer>
+</body>
+</html>
