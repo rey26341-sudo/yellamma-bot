@@ -1,7 +1,5 @@
 
-# 🤖 Yellamma AI Receptionist
-
-I built and developed an AI receptionist platform prototype for small businesses. I handled the backend, frontend, deployment, configuration, and automation workflows.”
+# 🤖 Yellamma AI Receptionist  {I identified a problem faced by small businesses — repetitive customer enquiries and appointment requests. I designed a configurable AI assistant where the same backend could support different industries by changing business workflows.I handled the backend, frontend, deployment, configuration, and automation workflows.}
 
 **Your AI Receptionist For Every Business**
 
