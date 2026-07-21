@@ -1,18 +1,65 @@
 {
+  "business_id": "salon",
+  "business_name": "Glam & Glow Studio",
   "industry": "salon_spa",
-  "type": "booking",
-  "system_prompt": "You are a salon assistant bot. Help customers book appointments politely.",
-  "collect_fields": [
-    "name",
-    "phone",
-    "service",
-    "date",
-    "time"
+
+  "greeting": "💇 Welcome to Glam & Glow Studio! I can help you with salon services, pricing, and appointment bookings. How can I assist you today?",
+
+  "services": [
+    "Hair styling",
+    "Hair cutting",
+    "Hair colouring",
+    "Bridal makeup",
+    "Facials and skincare",
+    "Manicure and pedicure",
+    "Spa treatments",
+    "Beauty packages"
   ],
-  "trigger_words": [
-    "appointment",
-    "book",
-    "booking"
+
+  "faqs": [
+    {
+      "q": "what services do you offer",
+      "a": "We offer hair styling, haircuts, colouring, bridal makeup, facials, skincare, manicure, pedicure, and spa services."
+    },
+    {
+      "q": "pricing",
+      "a": "Pricing depends on the selected service. Please tell us which service you are interested in and we will help you with the details."
+    },
+    {
+      "q": "bridal package",
+      "a": "Yes, we provide bridal makeup and beauty packages. Please share your wedding date so our team can check availability."
+    },
+    {
+      "q": "appointment",
+      "a": "Sure, I can help you book an appointment. Please share your preferred service, date, and time."
+    },
+    {
+      "q": "location",
+      "a": "Please contact our salon team for location details and directions."
+    }
   ],
-  "fallback_reply": "I can help you book appointments, answer service questions, and provide salon information."
+
+  "booking_flow": {
+    "trigger_keywords": [
+      "appointment",
+      "book",
+      "booking",
+      "schedule",
+      "visit"
+    ],
+
+    "fields": [
+      "name",
+      "phone",
+      "service",
+      "date",
+      "time"
+    ],
+
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur salon team will contact you shortly to confirm availability."
+  },
+
+  "tone": "friendly, professional, welcoming",
+
+  "fallback": "I can help you with salon services, pricing, and appointments. Could you please tell me what service you need?"
 }
