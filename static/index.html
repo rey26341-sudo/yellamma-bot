@@ -212,7 +212,7 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            business_id: "salon",
+            business_id: new URLSearchParams(window.location.search).get("business_id") || "salon",
             message: message
           })
         });

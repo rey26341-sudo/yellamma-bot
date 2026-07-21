@@ -1,0 +1,75 @@
+{
+  "business_id": "idolstore",
+  "business_name": "Praj Craft",
+  "industry": "Handcrafted Idols & Religious Décor",
+  "instagram": "@praj.craft",
+
+  "greeting": "🙏 Welcome to Praj Craft! We create handcrafted idols and religious décor. How can I help you today — are you looking for an idol, custom order, or pricing information?",
+
+  "services": [
+    "Handcrafted clay idols",
+    "Marble finish idols",
+    "Brass idols",
+    "Ganesh idols",
+    "Krishna idols",
+    "Lakshmi idols",
+    "Durga idols",
+    "Custom-sized idols",
+    "Festival collections",
+    "Home temple décor",
+    "Gift and corporate bulk orders"
+  ],
+
+  "faqs": [
+    {
+      "q": "what idols do you make",
+      "a": "We create handcrafted Ganesh, Krishna, Lakshmi, Durga and other deity idols. We also accept custom idol requirements."
+    },
+    {
+      "q": "which materials are available",
+      "a": "We create idols using different finishes including clay, marble finish, and brass styles. Availability depends on the design requirement."
+    },
+    {
+      "q": "pricing",
+      "a": "Pricing depends on idol type, size, material, and detailing. Please share the deity and approximate size to get a quotation."
+    },
+    {
+      "q": "custom order",
+      "a": "Yes, we accept customized orders. You can share the deity name, preferred size, material, and design preferences."
+    },
+    {
+      "q": "shipping",
+      "a": "We provide secure packaging and shipping support across India for safe delivery of handcrafted idols."
+    },
+    {
+      "q": "delivery time",
+      "a": "Delivery time depends on customization and idol availability. Our team will confirm the estimated timeline after understanding your requirement."
+    }
+  ],
+
+  "booking_flow": {
+    "trigger_keywords": [
+      "order",
+      "buy",
+      "purchase",
+      "custom order",
+      "custom idol",
+      "book",
+      "want idol"
+    ],
+
+    "fields": [
+      "name",
+      "phone",
+      "deity_or_idol_type",
+      "size_or_material",
+      "delivery_date"
+    ],
+
+    "confirmation_template": "✅ Your idol enquiry has been received.\n\nName: {name}\nPhone: {phone}\nIdol Type: {deity_or_idol_type}\nSize/Material: {size_or_material}\nRequired Date: {delivery_date}\n\n🙏 Praj Craft team will contact you soon with pricing and further details."
+  },
+
+  "tone": "warm, respectful, culturally rooted",
+
+  "fallback": "🙏 Thank you for contacting Praj Craft. I will help you with your requirement. Could you please share your name and phone number?"
+}
