@@ -23,7 +23,9 @@ engine here.
 
 import asyncio
 import json
+import logging
 import os
+import time
 from typing import Optional
 
 from fastapi import APIRouter
@@ -38,10 +40,28 @@ from app.voice.session import load_session, save_session
 CLINIC_NAME = "our clinic"  # e.g. "Sunrise Dental Care"
 GEMINI_MODEL = "gemini-2.5-flash"
 
+logger = logging.getLogger("voice.receptionist")
+
+# --- Customize per clinic/demo before each call ---------------------
+# List whatever this specific clinic actually offers. Keep it short —
+# 1-4 items reads naturally in a spoken sentence; a long list starts
+# sounding like a phone menu. This is the ONLY place service names
+# need to change; the system prompt below builds itself from this.
+SERVICES_OFFERED = ["dental care", "general consultation"]
+# ----------------------------------------------------------------------
+
+
+def _services_phrase() -> str:
+    if len(SERVICES_OFFERED) == 1:
+        return SERVICES_OFFERED[0]
+    if len(SERVICES_OFFERED) == 2:
+        return f"{SERVICES_OFFERED[0]} and {SERVICES_OFFERED[1]}"
+    return ", ".join(SERVICES_OFFERED[:-1]) + f", and {SERVICES_OFFERED[-1]}"
+
+
 SYSTEM_PROMPT = f"""\
 You are a calm, warm, professional AI voice receptionist for {CLINIC_NAME},
-a clinic offering skin care, hair care, dental care, and general
-consultation services.
+a clinic offering {_services_phrase()}.
 
 Your job is to collect four pieces of information from the caller, one
 step at a time, in a natural conversational way: their name, the
@@ -53,6 +73,11 @@ Rules:
 - Ask only one question at a time. Keep replies short (1-2 sentences),
   soft-spoken, and reassuring — this is a clinic, some callers may be
   anxious.
+- Only offer services from this exact list: {", ".join(SERVICES_OFFERED)}.
+  Never mention, suggest, or confirm a service outside this list — if
+  a caller asks for something not offered, gently let them know it's
+  not something this clinic provides and ask if they'd like one of
+  the services that are offered instead.
 - Never invent information the caller hasn't given you. If a field is
   still unknown, leave it as an empty string.
 - Carry forward any slot values already collected (given to you as
@@ -72,7 +97,7 @@ Rules:
 
 def greeting_text() -> str:
     return (
-        f"Welcome to SUNRISE CLINIC. I'm here to help you book an "
+        f"Welcome to {CLINIC_NAME}. I'm here to help you book an "
         "appointment. May I have your name, please?"
     )
 
@@ -137,10 +162,13 @@ async def generate_reply(session: dict, caller_said: str) -> tuple[dict, str, bo
     if not caller_said.strip():
         return session, "I'm sorry, I didn't quite hear that. Could you say it again?", False
 
+    gemini_start = time.monotonic()
     try:
         turn = await asyncio.to_thread(_generate_turn_blocking, session, caller_said)
     except Exception:
+        logger.exception("Gemini call failed")
         return session, "Sorry, could you say that again for me?", False
+    logger.info("TIMING gemini_call=%.2fs", time.monotonic() - gemini_start)
 
     session.update({
         "name": turn.name,

@@ -1,5 +1,15 @@
 fastapi
 uvicorn[standard]
+pydantic
+sqlalchemy
+psycopg2-binary
+google-genai
+python-dotenv
 redis>=5.0
 google-cloud-speech
 google-cloud-texttospeech
+langgraph
+langgraph-checkpoint-postgres
+langchain-core
+langchain-google-genai
+psycopg[binary,pool]
