@@ -15,8 +15,11 @@ this file's shape but speak Twilio Media Streams' event format
 change at all.
 """
 
+import asyncio
 import base64
 import json
+import logging
+import time
 from typing import Optional
 
 from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
@@ -27,6 +30,8 @@ from app.voice.stt import TurnListener
 from app.voice.tts import synthesize_speech
 
 router = APIRouter()
+
+logger = logging.getLogger("voice.exotel")
 
 SAMPLE_RATE_HZ = 8000  # Exotel's required PCM sample rate
 
@@ -44,8 +49,15 @@ async def connect_voicebot(request: Request):
     return JSONResponse({"url": f"wss://{host}/voice/stream"})
 
 
-async def _send_tts_reply(ws: WebSocket, stream_sid: str, text: str) -> None:
-    """Synthesize `text` and stream it back to Exotel as media events."""
+async def _send_tts_reply(ws: WebSocket, stream_sid: str, text: str) -> float:
+    """
+    Synthesize `text` and stream it back to Exotel as media events.
+    Returns the audio's playback duration in seconds — callers that
+    are about to hang up should await that long first, since sending
+    the audio to the WebSocket does not mean Exotel has finished
+    playing it to the caller yet. Closing the socket immediately after
+    sending cuts the reply off mid-sentence.
+    """
     pcm = await synthesize_speech(
         text,
         encoding=texttospeech.AudioEncoding.LINEAR16,
@@ -69,6 +81,9 @@ async def _send_tts_reply(ws: WebSocket, stream_sid: str, text: str) -> None:
         "stream_sid": stream_sid,
         "mark": {"name": "reply-complete"},
     }))
+
+    # 16-bit mono PCM: 2 bytes per sample.
+    return len(raw_pcm) / (SAMPLE_RATE_HZ * 2)
 
 
 @router.websocket("/stream")
@@ -113,11 +128,30 @@ async def voice_stream(ws: WebSocket):
                 listener.push_audio(base64.b64decode(payload_b64))
 
                 if listener_task.done():
+                    stt_done_at = time.monotonic()
                     transcript = listener_task.result()
+
+                    llm_start = time.monotonic()
                     _, reply_text, call_should_end = await handle_turn(stream_sid, transcript)
-                    await _send_tts_reply(ws, stream_sid, reply_text)
+                    llm_done_at = time.monotonic()
+
+                    duration_s = await _send_tts_reply(ws, stream_sid, reply_text)
+                    tts_done_at = time.monotonic()
+
+                    logger.info(
+                        "TIMING turn total=%.2fs llm=%.2fs tts=%.2fs transcript=%r",
+                        tts_done_at - stt_done_at,
+                        llm_done_at - llm_start,
+                        tts_done_at - llm_done_at,
+                        transcript,
+                    )
 
                     if call_should_end:
+                        # Give Exotel time to actually finish playing the
+                        # reply before we pull the socket out from under
+                        # it — otherwise the caller hears the reply cut
+                        # off mid-sentence. +0.5s pads for network jitter.
+                        await asyncio.sleep(duration_s + 0.5)
                         await clear_session(stream_sid)
                         await ws.close()
                         return
@@ -128,10 +162,11 @@ async def voice_stream(ws: WebSocket):
                 # Let callers press 0 to reach a human.
                 digit = event.get("dtmf", {}).get("digit")
                 if digit == "0" and stream_sid:
-                    await _send_tts_reply(
+                    duration_s = await _send_tts_reply(
                         ws, stream_sid,
                         "Connecting you to our front desk team. Please hold."
                     )
+                    await asyncio.sleep(duration_s + 0.5)
                     await clear_session(stream_sid)
                     await ws.close()
                     return

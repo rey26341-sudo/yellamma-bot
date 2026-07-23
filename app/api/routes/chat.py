@@ -1,59 +1,34 @@
-from fastapi import APIRouter, HTTPException
+import uuid
+
+from fastapi import APIRouter, HTTPException, Request
 
 from app.schemas.chat import ChatRequest, ChatResponse
-from app.services.ai_service import AIService
-from app.services.conversation_service import ConversationService
-from app.services.appointment_service import AppointmentService
-
 
 router = APIRouter()
 
-ai_service = AIService()
-conversation_service = ConversationService()
-appointment_service = AppointmentService()
-
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, http_request: Request):
+    # The compiled graph + checkpointer live on app.state, set up once
+    # at startup (see app/main.py's lifespan) rather than per-request.
+    graph = http_request.app.state.chat_graph
 
-    user_id = "demo-user"
-
-    session = conversation_service.get_session(user_id)
-
-    # Store which business is using the chatbot
-    session["business_id"] = request.business_id
+    session_id = request.session_id or str(uuid.uuid4())
+    thread_id = f"{request.business_id}:{session_id}"
 
     try:
-        reply = ai_service.generate_reply(
-            request.business_id,
-            request.message,
-            session
+        result = await graph.ainvoke(
+            {
+                "business_id": request.business_id,
+                "message": request.message,
+            },
+            config={"configurable": {"thread_id": thread_id}},
         )
 
     except FileNotFoundError as e:
-        raise HTTPException(
-            status_code=404,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=404, detail=str(e))
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=500, detail=str(e))
 
-
-    # Save appointment after all required details are collected
-    if (
-        session["name"]
-        and session["phone"]
-        and session["date"]
-        and session["time"]
-        and not session.get("saved")
-    ):
-
-        appointment_service.save_appointment(session)
-        session["saved"] = True
-
-
-    return ChatResponse(reply=reply)
+    return ChatResponse(reply=result["reply"], session_id=session_id)
