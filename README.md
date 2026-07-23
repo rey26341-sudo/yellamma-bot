@@ -1,5 +1,4 @@
-
-# 🤖 Yellamma AI Receptionist  {I identified a problem faced by small businesses — repetitive customer enquiries and appointment requests. I designed a configurable AI assistant where the same backend could support different industries by changing business workflows.I handled the backend, frontend, deployment, configuration, and automation workflows.}
+# 🤖 Yellamma AI Receptionist
 
 **Your AI Receptionist For Every Business**
 
@@ -7,13 +6,53 @@ Yellamma is an AI-powered virtual receptionist platform that helps businesses an
 
 > Help customers, answer enquiries, and automate conversations 24/7.
 
+I identified a problem faced by small businesses — repetitive customer enquiries and appointment requests — and designed a configurable AI assistant where the same backend supports different industries by swapping business workflows. I own the backend, frontend, deployment, configuration, and automation workflows end-to-end.
+
+---
+
+## 🚦 Current Status
+
+**The LangGraph-powered appointment flow is working and verified.**
+
+The chatbot has been upgraded from the earlier, simpler rule-based flow to a **LangChain + LangGraph** conversation engine. It now collects appointment details step by step, preserves that information across the whole conversation (using graph state instead of stateless prompting), and writes the finished booking to the real production database.
+
+### ✅ Verified working
+
+- Conversational, multi-turn appointment booking
+- Step-by-step collection of customer name, phone number, appointment date, and time
+- Conversation memory persisted across the entire booking flow (via LangGraph state)
+- LangGraph/LangChain orchestration powering the chatbot's "brain"
+- Saving completed appointments to the production application database
+- Required database fields for `business_id` and `service` are captured and stored
+
+<img width="1917" height="402" alt="image" src="https://github.com/user-attachments/assets/a5e13f2c-9660-4c59-8750-8488c2130f10" />
+
+
+### 🧪 Latest verification
+
+An end-to-end test completed successfully, with the following appointment saved to the database:
+
+| ID | Customer | Phone | Date | Time |
+|----|-----------|-------------|-------------|------|
+| 8 | Renganayaki | 9876543210 | next monday | 2 PM |
+
+This confirms the full path is working: **conversation → remembered details → database booking**, with the run completing without errors.
+
+### 🔧 What was fixed during the LangGraph migration
+
+1. Resolved setup issues such as missing folders and an incorrect active Python environment.
+2. Corrected the database path so bookings are written to the intended application database (not a stray/local one).
+3. Updated the existing database schema with the missing `business_id` and `service` columns.
+4. Confirmed a real appointment can now be created successfully end-to-end through the new chatbot flow.
+
 ---
 
 ## ✨ Features
 
 - **Conversational AI receptionist** powered by Google Gemini, with natural, context-aware replies.
+- **Stateful conversation engine** — LangChain + LangGraph manage multi-turn dialogue state, so details collected earlier in the chat (name, phone, date) are never lost as the conversation continues.
 - **Multi-business support** — a single API instance serves multiple businesses, distinguished by a `business_id` (e.g. `salon`, `pogo`).
-- **Appointment booking flow** — collects the customer's name, phone number, preferred date, and time, then confirms the request:
+- **Appointment booking flow** — collects the customer's name, phone number, preferred date, time, and service, then confirms the request and persists it to the database:
   ```
   ✅ Appointment request received.
   Name: Kirishanth
@@ -23,6 +62,7 @@ Yellamma is an AI-powered virtual receptionist platform that helps businesses an
   Our staff will contact you shortly.
   ```
 - **Service & FAQ answering** — responds to natural-language questions like *"salon services?"* or *"facial and threading"* with relevant, formatted answers.
+- **Persistent bookings** — completed bookings are written to PostgreSQL, including the `business_id` and `service` fields required for multi-tenant reporting.
 - **Simple REST API** (`POST /chat`) that's easy to integrate into any website, WhatsApp bot, or messaging platform.
 - **Interactive API docs** via Swagger UI (auto-generated from FastAPI).
 - **Web chat demo widget** for trying the receptionist directly in the browser.
@@ -31,16 +71,75 @@ Yellamma is an AI-powered virtual receptionist platform that helps businesses an
 
 ---
 
-## 🏗️ Tech Stack
+## 🏗️ Architecture Diagram
 
-| Layer            | Technology                                   |
-|-------------------|-----------------------------------------------|
-| Backend API       | Python 3.12, FastAPI, Uvicorn                |
-| AI / LLM          | Google Gemini API (`google-genai`)           |
-| Database          | PostgreSQL (via Docker container `yellamma-db`) |
-| Containerization  | Docker & Docker Compose                       |
-| Frontend (demo)   | HTML / JavaScript chat widget                 |
-| Tunneling         | Cloudflare Tunnel (`trycloudflare.com`)       |
+The diagram below shows how a message flows from a customer through the multi-tenant API into the LangGraph-orchestrated conversation brain, and how a completed booking is persisted.
+
+```mermaid
+flowchart TD
+    subgraph Client["Client Surfaces"]
+        A1[Web Chat Widget]
+        A2[Landing / Demo Page]
+        A3[Future: WhatsApp / Telegram]
+    end
+
+    subgraph API["FastAPI Backend (yellamma-api)"]
+        B1["/chat endpoint\n(chat.py)"]
+        B2["/appointments endpoints\n(appointments.py)"]
+        B3["Config Loader\n(config_loader.py)\nresolves business_id → JSON profile"]
+    end
+
+    subgraph Brain["Conversation Engine"]
+        C1["Conversation Service\n(conversation_service.py)"]
+        C2["LangGraph State Machine\n- collect name\n- collect phone\n- collect date\n- collect time\n- collect service\n- confirm booking"]
+        C3["LangChain Orchestration Layer"]
+        C4["Gemini Service\n(gemini_service.py)\ncalls Google Gemini API"]
+    end
+
+    subgraph Data["Persistence"]
+        D1["Booking Service\n(booking_service.py /\nappointment_service.py)"]
+        D2[("PostgreSQL\nyellamma-db")]
+        D3["Per-business configs\n(configs/*.json)"]
+        D4["Per-client knowledge & prompts\n(clients/*/knowledge.md, prompts.md)"]
+    end
+
+    subgraph Planned["Planned (Roadmap)"]
+        E1["Qdrant\nDocument / FAQ retrieval"]
+        E2["Multi-agent layer\n(specialized agents)"]
+    end
+
+    A1 --> B1
+    A2 --> B1
+    A3 -.future.-> B1
+
+    B1 --> B3
+    B3 --> D3
+    B1 --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 -->|Gemini response| C1
+    C1 --> D4
+
+    C2 -->|all fields collected| D1
+    D1 --> D2
+    B2 --> D2
+
+    C2 -.future retrieval.-> E1
+    C1 -.future.-> E2
+
+    style Planned stroke-dasharray: 5 5
+```
+
+**How a request flows, step by step:**
+
+1. A customer sends a message from the **web chat widget**, the **landing page demo**, or (in future) **WhatsApp/Telegram**.
+2. The message hits `POST /chat` along with a `business_id`.
+3. The **Config Loader** resolves which business profile to use — pulling branding, FAQs, flows, and prompts specific to that tenant (e.g. `salon.json` vs `pogo.json`).
+4. The **Conversation Service** hands the message and current state to the **LangGraph state machine**, which tracks exactly where the customer is in the booking flow (name → phone → date → time → service → confirm) and remembers everything collected so far.
+5. **LangChain** orchestrates the prompt construction and tool calls; the **Gemini Service** calls the Google Gemini API to generate the natural-language reply.
+6. Once every required field has been collected, the **Booking Service** writes the finished appointment — including the mandatory `business_id` and `service` columns — to **PostgreSQL**.
+7. Planned components (dashed box): **Qdrant** for document/FAQ retrieval so the bot can answer from real business documents, and a **multi-agent layer** to split responsibilities (e.g. a booking agent vs. an FAQ agent vs. a follow-up agent).
 
 ---
 
@@ -64,16 +163,17 @@ yellamma-bot/
 │   ├── database/
 │   │   └── database.py           # DB connection/session setup
 │   ├── models/
-│   │   └── appointment.py        # SQLAlchemy models
+│   │   └── appointment.py        # SQLAlchemy models (now incl. business_id, service)
 │   ├── schemas/
 │   │   ├── app.py
 │   │   └── chat.py                # Pydantic request/response schemas
 │   ├── services/
 │   │   ├── ai_service.py          # AI orchestration layer
 │   │   ├── gemini_service.py      # Google Gemini integration
-│   │   ├── conversation_service.py
+│   │   ├── conversation_service.py# Talks to the LangGraph state machine
+│   │   ├── graph_service.py        # ⭐ NEW: LangGraph flow definition & state
 │   │   ├── appointment_service.py
-│   │   ├── booking_service.py
+│   │   ├── booking_service.py     # Persists completed bookings to Postgres
 │   │   └── config_loader.py       # Loads per-business JSON configs
 │   └── utils/
 │       └── parser.py              # Message/date/time parsing helpers
@@ -109,12 +209,30 @@ yellamma-bot/
 │
 ├── Dockerfile
 ├── docker-compose.yml
-├── requirements.txt              # Python dependencies
+├── requirements.txt              # Python dependencies (now incl. langchain, langgraph)
 ├── PROJECT_ROADMAP.md
 └── README.md
 ```
 
-> **Note:** The repo contains both a Python/FastAPI backend (`app/`) and a small Node/Express server (`server.js`). `node_modules/` and `venv/` are local dependency folders and aren't tracked in version control (add them to `.gitignore` if not already).
+> **Note:** `graph_service.py` is new since the LangGraph migration and is where the conversation state machine (name → phone → date → time → service → confirm) is defined. Adjust the exact filename/location to match your actual repo if it differs — this reflects the described upgrade layered onto the previously documented structure.
+>
+> The repo contains both a Python/FastAPI backend (`app/`) and a small Node/Express server (`server.js`). `node_modules/` and `venv/` are local dependency folders and aren't tracked in version control (add them to `.gitignore` if not already).
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer                | Technology                                        |
+|-----------------------|----------------------------------------------------|
+| Backend API           | Python 3.12, FastAPI, Uvicorn                      |
+| Conversation Engine   | LangChain + LangGraph (stateful multi-turn flows)  |
+| AI / LLM              | Google Gemini API (`google-genai`)                 |
+| Database               | PostgreSQL (via Docker container `yellamma-db`)    |
+| Containerization       | Docker & Docker Compose                            |
+| Frontend (demo)        | HTML / JavaScript chat widget                       |
+| Tunneling               | Cloudflare Tunnel (`trycloudflare.com`)            |
+| Planned: Retrieval     | Qdrant (document / FAQ search)                     |
+| Planned: Messaging     | WhatsApp / Telegram integration                    |
 
 ---
 
@@ -160,7 +278,7 @@ Once running, the API will be available at:
 http://127.0.0.1:8001
 ```
 
-> **Note:** If you see `ModuleNotFoundError: No module named 'google'`, make sure `google-genai` is listed in `requirements.txt` and rebuild the image with `docker compose up --build`.
+> **Note:** If you see `ModuleNotFoundError: No module named 'google'`, make sure `google-genai` is listed in `requirements.txt` and rebuild the image with `docker compose up --build`. Similarly, ensure `langchain` and `langgraph` are listed for the new conversation engine.
 
 ### 4. Explore the API docs
 
@@ -201,15 +319,15 @@ curl -X POST http://127.0.0.1:8001/chat \
   -d '{"business_id":"salon","message":"book appointment"}'
 ```
 
-### Example conversation flow (appointment booking)
+### Example conversation flow (appointment booking, LangGraph-driven)
 
-| Step | User message | Bot reply |
-|------|----------------|-----------|
-| 1 | `book appointment` | "May I know your full name?" |
-| 2 | `Mr X` | "May I have your 10-digit mobile number?" |
-| 3 | `2345678901` | "Which date would you like to book your appointment?" |
-| 4 | `next week` | "What time works best for you?" |
-| 5 | `5 pm` | ✅ Appointment request received & confirmed |
+| Step | User message | Bot reply | Graph State Update |
+|------|----------------|-----------|----------------------|
+| 1 | `book appointment` | "May I know your full name?" | enters `collect_name` node |
+| 2 | `Renganayaki` | "May I have your 10-digit mobile number?" | `name` stored, moves to `collect_phone` |
+| 3 | `9876543210` | "Which date would you like to book your appointment?" | `phone` stored, moves to `collect_date` |
+| 4 | `next monday` | "What time works best for you?" | `date` stored, moves to `collect_time` |
+| 5 | `2 PM` | ✅ Appointment request received & confirmed | `time` stored → all fields present → booking written to Postgres |
 
 ---
 
@@ -221,7 +339,7 @@ A minimal HTML/JS chat widget is included for testing the receptionist in-browse
 http://127.0.0.1:5500
 ```
 
-Simply type a message in the input box and press **Send** — the widget calls the `/chat` API and displays the AI's response in real time.
+Simply type a message in the input box and press **Send** — the widget calls the `/chat` API and displays the AI's response in real time, with the LangGraph engine keeping track of the conversation behind the scenes.
 
 ---
 
@@ -251,11 +369,18 @@ This generates a public URL (e.g. `https://your-tunnel-name.trycloudflare.com`) 
 
 ## 🛣️ Roadmap
 
-- [ ] Add WhatsApp / Telegram integration
+- [x] LangGraph/LangChain-based conversation engine with persistent multi-turn state
+- [x] End-to-end appointment booking saved to the production database
+- [ ] WhatsApp / Telegram integration
+- [ ] Document search / knowledge retrieval using Qdrant
+- [ ] Multi-agent architecture with specialized agents (booking agent, FAQ agent, follow-up agent)
 - [ ] Admin dashboard for managing businesses and appointments
-- [ ] Persistent conversation history per customer
 - [ ] Multi-language support
 - [ ] Voice input/output support
+
+## 🎯 Project Direction
+
+The core booking brain — built on LangGraph and verified end-to-end — is complete. The next phase builds on this foundation: connect it to WhatsApp, give it access to business documents and FAQs through Qdrant, and gradually introduce specialized agents where they provide clear value.
 
 ---
 
@@ -268,6 +393,11 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 ## 📄 License
 
 This project is currently unlicensed. Add a `LICENSE` file to specify usage terms.
+
+  
+
+
+
 
 proof of works:
 <img width="1920" height="1020" alt="Screenshot 2026-06-24 175735" src="https://github.com/user-attachments/assets/ed93e016-b938-40f3-a36f-6e8b95382954" />
