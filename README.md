@@ -8,6 +8,14 @@ Yellamma is an AI-powered virtual receptionist platform that helps businesses an
 
 I identified a problem faced by small businesses — repetitive customer enquiries and appointment requests — and designed a configurable AI assistant where the same backend supports different industries by swapping business workflows. I own the backend, frontend, deployment, configuration, and automation workflows end-to-end.
 
+## Why LangGraph?
+
+Traditional chatbots send every message independently to the LLM.
+
+Yellamma uses LangGraph to model conversations as a state machine. Customer details collected during the booking flow are preserved across multiple turns, allowing the assistant to complete bookings reliably before writing them to PostgreSQL.
+
+This architecture provides a foundation for future RAG, tool calling, and multi-agent workflows.
+
 ---
 
 ## 🚦 Current Status
@@ -21,7 +29,7 @@ The chatbot has been upgraded from the earlier, simpler rule-based flow to a **L
 - Conversational, multi-turn appointment booking
 - Step-by-step collection of customer name, phone number, appointment date, and time
 - Conversation memory persisted across the entire booking flow (via LangGraph state)
-- LangGraph/LangChain orchestration powering the chatbot's "brain"
+- LangGraph manages conversation state while LangChain provides LLM integration.
 - Saving completed appointments to the production application database
 - Required database fields for `business_id` and `service` are captured and stored
 
@@ -50,7 +58,7 @@ This confirms the full path is working: **conversation → remembered details �
 ## ✨ Features
 
 - **Conversational AI receptionist** powered by Google Gemini, with natural, context-aware replies.
-- **Stateful conversation engine** — LangChain + LangGraph manage multi-turn dialogue state, so details collected earlier in the chat (name, phone, date) are never lost as the conversation continues.
+- **Stateful AI workflow powered by LangGraph** — LangChain + LangGraph manage multi-turn dialogue state, so details collected earlier in the chat (name, phone, date) are never lost as the conversation continues.
 - **Multi-business support** — a single API instance serves multiple businesses, distinguished by a `business_id` (e.g. `salon`, `pogo`).
 - **Appointment booking flow** — collects the customer's name, phone number, preferred date, time, and service, then confirms the request and persists it to the database:
   ```
@@ -73,7 +81,7 @@ This confirms the full path is working: **conversation → remembered details �
 
 ## 🏗️ Architecture Diagram
 
-The diagram below shows how a message flows from a customer through the multi-tenant API into the LangGraph-orchestrated conversation brain, and how a completed booking is persisted.
+The diagram below shows how a message flows from a customer through the multi-tenant API into the LangGraph-orchestrated conversation AI Agent layer, and how a completed booking is persisted.
 
 ```mermaid
 flowchart TD
@@ -370,13 +378,14 @@ This generates a public URL (e.g. `https://your-tunnel-name.trycloudflare.com`) 
 ## 🛣️ Roadmap
 
 - [x] LangGraph/LangChain-based conversation engine with persistent multi-turn state
-- [x] End-to-end appointment booking saved to the production database
+- [x] End-to-end appointment booking saved to the production database - postgreSQL
 - [ ] WhatsApp / Telegram integration
 - [ ] Document search / knowledge retrieval using Qdrant
-- [ ] Multi-agent architecture with specialized agents (booking agent, FAQ agent, follow-up agent)
 - [ ] Admin dashboard for managing businesses and appointments
 - [ ] Multi-language support
 - [ ] Voice input/output support
+- [ ] Multi-agent architecture with specialized agents (booking agent, FAQ agent, follow-up agent)
+      
 
 ## 🎯 Project Direction
 
