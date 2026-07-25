@@ -1,24 +1,51 @@
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import String, Integer
+from sqlalchemy.orm import Mapped, mapped_column
 
-
-class Base(DeclarativeBase):
-    pass
+from app.database.database import Base
 
 
 class Appointment(Base):
     __tablename__ = "appointments"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
-    business_id = Column(String)
+    tenant_id: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        index=True
+    )
 
-    name = Column(String)
+    business_id: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        index=True
+    )
 
-    phone = Column(String)
+    name: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False
+    )
 
-    service = Column(String)
+    phone: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False
+    )
 
-    date = Column(String)
+    service: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False
+    )
 
-    time = Column(String)
+    date: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False
+    )
+
+    time: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False
+    )

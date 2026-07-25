@@ -1,21 +1,23 @@
 """
 app/core/graph.py
 
-The LangGraph core. This is a behavior-preserving re-platform of the
-old AIService.generate_reply()'s if/elif chains — same decision logic,
-moved into graph nodes with real persisted state instead of two
-disconnected in-memory dicts. Business rules aren't rewritten here on
-purpose: re-platform first, improve the rules once you can see this
-still behaves the same as before.
+DIFF NOTES (apply against your real file — I haven't seen
+app/core/tools.py yet, so the save_appointment.invoke(...) ->
+await save_appointment.ainvoke(...) line below assumes the tool
+becomes async too; if tools.py stays sync, tell me and I'll adjust
+this instead of guessing).
 
-Two request paths, chosen by config["type"] (defaults to "booking" if
-the field is missing, e.g. the current salon.json):
-  - "customer_support" (e.g. pogo) -> customer_support_node
-  - anything else (e.g. salon)     -> booking_node
+Changes from your version:
+  1. booking_node is now `async def` (was `def`) so it can await the
+     appointment save instead of running a blocking sync DB call
+     inside an async graph invocation.
+  2. save_input now sends "tenant_id": state["tenant_id"] instead of
+     "business_id" — the real FK, resolved server-side by chat.py
+     before this graph ever runs, not the display slug.
+  3. save_appointment.invoke(...) -> await save_appointment.ainvoke(...)
 
-Both call ask_gemini() (app/core/llm.py) for open-ended questions, and
-booking_node calls the save_appointment tool (app/core/tools.py) once
-name/phone/date/time are all collected.
+Everything else (routing logic, keyword ladders, reply text) is
+unchanged from what you pasted.
 """
 
 import logging
@@ -39,23 +41,11 @@ def _append_history(state: ChatState, role: str, text: str) -> None:
     state["history"] = state["history"][-12:]
 
 
-# ---------------------------------------------------------------------
-# Entry: load config, decide which flow this business uses
-# ---------------------------------------------------------------------
-
 def route_by_business_type(state: ChatState) -> str:
     config = load_config(state["business_id"])
-    # Defaults to "booking" — salon.json has no "type" key today, and
-    # the old code's fallback path (no type check) was the booking
-    # flow, so this preserves that behavior instead of crashing on a
-    # missing key the way `config["type"]` used to.
     business_type = config.get("type", "booking")
     return "customer_support" if business_type == "customer_support" else "booking"
 
-
-# ---------------------------------------------------------------------
-# Customer-support flow (e.g. pogo) — same keyword ladder as before
-# ---------------------------------------------------------------------
 
 def customer_support_node(state: ChatState) -> ChatState:
     message = state["message"].lower().strip()
@@ -135,10 +125,6 @@ def customer_support_node(state: ChatState) -> ChatState:
     return state
 
 
-# ---------------------------------------------------------------------
-# Booking flow (e.g. salon) — same multi-step flow as before
-# ---------------------------------------------------------------------
-
 BOOKING_TRIGGER_WORDS = ["appointment", "book", "booking", "schedule", "reserve", "visit", "slot"]
 SALON_INFO_WORDS = [
     "service", "services", "price", "pricing", "cost", "charge", "haircut", "hair",
@@ -147,7 +133,7 @@ SALON_INFO_WORDS = [
 ]
 
 
-def booking_node(state: ChatState) -> ChatState:
+async def booking_node(state: ChatState) -> ChatState:
     message = state["message"].lower().strip()
     business_id = state["business_id"]
     config = load_config(business_id)
@@ -186,11 +172,13 @@ def booking_node(state: ChatState) -> ChatState:
         state["time"] = time_value
         state["step"] = None
 
-        # All fields collected — save via the LangChain tool instead
-        # of calling AppointmentService directly.
         if not state.get("saved"):
             save_input = {
-                "business_id": business_id,
+                # tenant_id, not business_id — the real FK, resolved
+                # server-side before this graph ever ran (see
+                # app/api/routes/chat.py). business_id stays available
+                # in `state` for config/display purposes only.
+                "tenant_id": state["tenant_id"],
                 "name": state.get("name") or "",
                 "phone": state.get("phone") or "",
                 "service": state.get("service") or "",
@@ -199,14 +187,11 @@ def booking_node(state: ChatState) -> ChatState:
             }
             logger.info("Attempting save_appointment with input=%r", save_input)
             try:
-                tool_result = save_appointment.invoke(save_input)
+                tool_result = await save_appointment.ainvoke(save_input)
                 logger.info("save_appointment succeeded: %r", tool_result)
                 state["saved"] = True
             except Exception:
                 logger.exception("save_appointment FAILED for input=%r", save_input)
-                # Don't set saved=True on failure — next turn's retry
-                # (if any) will attempt the save again instead of
-                # silently pretending it worked.
 
         state["reply"] = (
             "✅ Appointment request received.\n\n"
@@ -242,19 +227,11 @@ def booking_node(state: ChatState) -> ChatState:
     return state
 
 
-# ---------------------------------------------------------------------
-# History bookkeeping — runs after either flow, before END
-# ---------------------------------------------------------------------
-
 def record_history_node(state: ChatState) -> ChatState:
     _append_history(state, "user", state["message"])
     _append_history(state, "assistant", state["reply"] or "")
     return state
 
-
-# ---------------------------------------------------------------------
-# Build + compile
-# ---------------------------------------------------------------------
 
 def build_graph(checkpointer):
     graph = StateGraph(ChatState)

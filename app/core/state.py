@@ -19,6 +19,17 @@ class HistoryTurn(TypedDict):
 
 class ChatState(TypedDict):
     business_id: str
+    # Real Tenant.id (UUID, as str), resolved server-side from the
+    # caller's API key before the graph is ever invoked — see
+    # app/api/routes/chat.py. business_id above stays as the
+    # config-lookup slug (e.g. "salon"), used only to pick which JSON
+    # profile/prompts to load. tenant_id is what appointment writes
+    # use for the real FK. Keeping these as two separate fields is
+    # deliberate: business_id is a display/config convenience,
+    # tenant_id is the actual authorization-relevant identity, and
+    # conflating the two into one client-suppliable string was the
+    # root of the original vulnerability.
+    tenant_id: str
     message: str
     history: List[HistoryTurn]
 
