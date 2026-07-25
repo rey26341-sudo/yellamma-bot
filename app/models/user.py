@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import String, DateTime, Integer, Boolean, ForeignKey
+from sqlalchemy import String, DateTime, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.database import Base
@@ -32,9 +32,10 @@ class User(Base):
         default="admin"
     )
 
-    tenant_id: Mapped[int | None] = mapped_column(
+    tenant_id: Mapped[int] = mapped_column(
         Integer,
-        nullable=True
+        nullable=False,
+        index=True
     )
 
     is_active: Mapped[bool] = mapped_column(
