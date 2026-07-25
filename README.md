@@ -375,6 +375,26 @@ This generates a public URL (e.g. `https://your-tunnel-name.trycloudflare.com`) 
 
 ---
 
+**Added production security features** 
+
+Async SQLAlchemy
+PostgreSQL-first design
+No silent SQLite fallback in production
+TLS requirement for external PostgreSQL
+Connection pooling
+Statement timeout
+No DB URL logging
+Async session management
+
+
+
+
+
+
+
+
+
+
 ## 🛣️ Roadmap
 
 - [x] LangGraph/LangChain-based conversation engine with persistent multi-turn state
