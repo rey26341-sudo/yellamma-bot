@@ -2,11 +2,33 @@ const express = require("express");
 const path = require("path");
 
 const app = express();
+const API_BASE_URL = process.env.API_BASE_URL || "http://127.0.0.1:8001";
 
 app.use(express.json());
 
 // Serve files from the frontend folder
 app.use(express.static(path.join(__dirname, "frontend")));
+
+app.post("/chat", async (req, res) => {
+  try {
+    const upstreamResponse = await fetch(`${API_BASE_URL}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(req.body || {})
+    });
+
+    const responseText = await upstreamResponse.text();
+    res.status(upstreamResponse.status);
+    res.set("Content-Type", upstreamResponse.headers.get("content-type") || "application/json");
+    res.send(responseText);
+  } catch (error) {
+    res.status(502).json({
+      detail: "Unable to reach the backend chat API. Start the FastAPI service on port 8001 and try again."
+    });
+  }
+});
 
 const VERIFY_TOKEN = "yellamma_verify_123";
 
