@@ -197,7 +197,7 @@
       messages.scrollTop = messages.scrollHeight;
       return bubble;
     }
-
+    let sessionId = null;
     function setLoading(isLoading) {
       sendButton.disabled = isLoading;
       messageInput.disabled = isLoading;
@@ -240,11 +240,13 @@
           },
           body: JSON.stringify({
             business_id: businessType.value,
-            message: message
-          })
+            message: message,
+            session_id: sessionId
+           })
         });
 
         const data = await response.json();
+        sessionId = data.session_id;
         typing.remove();
 
         if (!response.ok) {
