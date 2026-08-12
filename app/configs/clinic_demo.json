@@ -1,0 +1,25 @@
+{
+  "business_id": "clinic_demo",
+  "business_name": "Demo Family Clinic",
+  "industry": "healthcare_clinic",
+  "greeting": "👋 Welcome to Demo Family Clinic! I can help with opening hours, services, insurance questions, and booking an appointment. How can I help today?",
+  "services": ["General consultation", "Follow-up visit", "New patient registration"],
+  "staff_names": [],
+  "opening_hours": {"mon_fri": "08:00-18:00", "sat": "09:00-13:00", "sun": "closed"},
+  "pricing": "Consultation fees vary by service and insurance coverage. Please share your insurance provider and we'll confirm coverage, or connect you with our front desk for exact pricing.",
+  "cancellation_policy": "Please contact us at least 24 hours in advance to cancel or reschedule an appointment.",
+  "faqs": [
+    {"q": "what are your opening hours", "a": "We're open Mon-Fri 08:00-18:00 and Sat 09:00-13:00. Closed Sundays."},
+    {"q": "do you accept insurance", "a": "Please tell us your insurance provider and we'll confirm coverage, or connect you with our front desk."},
+    {"q": "how do I book an appointment", "a": "I can help with that right now - just tell me your preferred date and time."},
+    {"q": "location", "a": "123 Example Street, City, Country. Let me know if you'd like directions."},
+    {"q": "can I cancel or reschedule", "a": "Yes - share your name and the original appointment time and I'll pass it to our staff to update, or I can help you rebook."}
+  ],
+  "booking_flow": {
+    "trigger_keywords": ["appointment", "book", "booking", "schedule", "visit"],
+    "fields": ["name", "phone", "date", "time", "visit_reason_category"],
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nDate: {date}\nTime: {time}\n\nOur staff will contact you shortly to confirm."
+  },
+  "tone": "calm, professional, reassuring",
+  "fallback": "I don't have enough public information regarding that topic. Would you like help booking an appointment, or should I connect you with our front desk?"
+}

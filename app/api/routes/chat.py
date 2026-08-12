@@ -29,6 +29,18 @@ async def chat(request: ChatRequest, http_request: Request):
         raise HTTPException(status_code=404, detail=str(e))
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        detail = str(e)
+        lower_detail = detail.lower()
+        if (
+            "401" in detail
+            or "unauthenticated" in lower_detail
+            or "unauthorized" in lower_detail
+            or "no api key" in lower_detail
+        ):
+            raise HTTPException(
+                status_code=503,
+                detail="AI service authentication failed. Verify the Gemini API key in the environment.",
+            )
+        raise HTTPException(status_code=500, detail=detail)
 
     return ChatResponse(reply=result["reply"], session_id=session_id)

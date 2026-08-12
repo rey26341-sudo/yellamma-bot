@@ -1,0 +1,48 @@
+{
+  "business_id": "beauty_salon",
+  "business_name": "Lustre Beauty Studio",
+  "industry": "beauty_salon",
+  "type": "booking",
+  "greeting": "Welcome to Lustre Beauty Studio. I can help you with appointments, beauty services, pricing, and opening hours. How may I assist you today?",
+  "services": [
+    "Hair styling",
+    "Bridal grooming",
+    "Facial treatment",
+    "Threading and waxing",
+    "Manicure and pedicure"
+  ],
+  "booking_flow": {
+    "trigger_keywords": ["appointment", "book", "booking", "schedule", "visit", "session"],
+    "fields": ["name", "phone", "service", "date", "time"],
+    "lead_prompt": "Certainly. I can help you book a beauty appointment. May I know your full name?",
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur studio team will contact you shortly to confirm availability."
+  },
+  "faqs": [
+    {
+      "q": "what services do you offer",
+      "a": "We offer hair styling, bridal grooming, facial treatment, threading and waxing, and manicure and pedicure services."
+    },
+    {
+      "q": "pricing",
+      "a": "Pricing depends on the selected service and package. Our team can help confirm the best option for your visit."
+    },
+    {
+      "q": "cancellation policy",
+      "a": "Please notify the studio at least 2 hours before your appointment if you need to cancel or reschedule."
+    }
+  ],
+  "opening_hours": {
+    "monday": "10:00 AM - 8:00 PM",
+    "tuesday": "10:00 AM - 8:00 PM",
+    "wednesday": "10:00 AM - 8:00 PM",
+    "thursday": "10:00 AM - 8:00 PM",
+    "friday": "10:00 AM - 8:00 PM",
+    "saturday": "10:00 AM - 6:00 PM",
+    "sunday": "Closed"
+  },
+  "cancellation_policy": "Please inform us at least 2 hours before your appointment if you need to cancel or reschedule.",
+  "staff_names": ["Aditi", "Priya", "Stylist Team"],
+  "pricing": "Beauty service pricing varies by service and package, and can be confirmed during booking.",
+  "fallback": "I can help with beauty services, pricing, appointment booking, and basic studio enquiries. What do you need help with?",
+  "tone": "friendly, stylish, polished"
+}

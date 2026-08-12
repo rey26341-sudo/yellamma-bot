@@ -1,23 +1,5 @@
 """
 app/core/graph.py
-
-DIFF NOTES (apply against your real file — I haven't seen
-app/core/tools.py yet, so the save_appointment.invoke(...) ->
-await save_appointment.ainvoke(...) line below assumes the tool
-becomes async too; if tools.py stays sync, tell me and I'll adjust
-this instead of guessing).
-
-Changes from your version:
-  1. booking_node is now `async def` (was `def`) so it can await the
-     appointment save instead of running a blocking sync DB call
-     inside an async graph invocation.
-  2. save_input now sends "tenant_id": state["tenant_id"] instead of
-     "business_id" — the real FK, resolved server-side by chat.py
-     before this graph ever runs, not the display slug.
-  3. save_appointment.invoke(...) -> await save_appointment.ainvoke(...)
-
-Everything else (routing logic, keyword ladders, reply text) is
-unchanged from what you pasted.
 """
 
 import logging
@@ -126,10 +108,20 @@ def customer_support_node(state: ChatState) -> ChatState:
 
 
 BOOKING_TRIGGER_WORDS = ["appointment", "book", "booking", "schedule", "reserve", "visit", "slot"]
-SALON_INFO_WORDS = [
-    "service", "services", "price", "pricing", "cost", "charge", "haircut", "hair",
-    "hairstyle", "hair spa", "facial", "cleanup", "makeup", "bridal", "threading",
-    "waxing", "manicure", "pedicure", "timing", "hours", "open", "closed", "location", "address",
+GENERIC_INFO_WORDS = [
+    "service", "services", "price", "pricing", "cost", "charge", "hours",
+    "open", "closed", "location", "address", "staff", "policy", "cancellation",
+    "booking", "appointment", "schedule"
+]
+EMERGENCY_KEYWORDS = [
+    "chest pain", "can't breathe", "cannot breathe", "difficulty breathing",
+    "severe bleeding", "heavy bleeding", "unconscious", "passed out",
+    "suicide", "kill myself", "self harm", "overdose", "stroke", "seizure",
+]
+SYMPTOM_KEYWORDS = [
+    "pain", "hurts", "hurting", "ache", "fever", "vomit", "nausea",
+    "dizzy", "rash", "swelling", "symptom", "symptoms", "sick", "unwell",
+    "bleeding", "cough", "injury", "injured",
 ]
 
 
@@ -137,6 +129,14 @@ async def booking_node(state: ChatState) -> ChatState:
     message = state["message"].lower().strip()
     business_id = state["business_id"]
     config = load_config(business_id)
+
+    if any(k in message for k in EMERGENCY_KEYWORDS):
+        state["reply"] = (
+            "This may need urgent attention. Please call emergency services or go to your "
+            "nearest emergency room right away. If you'd like, I can also share our clinic's "
+            "phone number for a follow-up once you're safe."
+        )
+        return state
 
     if state.get("step") == "awaiting_name":
         name = extract_name(message)
@@ -193,30 +193,40 @@ async def booking_node(state: ChatState) -> ChatState:
             except Exception:
                 logger.exception("save_appointment FAILED for input=%r", save_input)
 
-        state["reply"] = (
-            "✅ Appointment request received.\n\n"
-            f"Name: {state['name']}\n"
-            f"Phone: {state['phone']}\n"
-            f"Date: {state['date']}\n"
-            f"Time: {time_value}\n\n"
-            "Our salon team will contact you shortly for confirmation.\n\n"
-            "Have a nice day!"
+        confirmation_template = (
+            config.get("booking_flow", {}).get("confirmation_template")
+            or "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur team will contact you shortly for confirmation."
+        )
+        state["reply"] = confirmation_template.format(
+            name=state.get("name") or "",
+            phone=state.get("phone") or "",
+            service=state.get("service") or "",
+            date=state.get("date") or "",
+            time=time_value,
         )
         return state
 
-    if any(w in message for w in BOOKING_TRIGGER_WORDS):
+    booking_keywords = config.get("booking_flow", {}).get("trigger_keywords", BOOKING_TRIGGER_WORDS)
+    if any(w in message for w in booking_keywords):
         state["step"] = "awaiting_name"
-        state["reply"] = "Certainly! I can help you book an appointment.\n\nMay I know your full name?"
+        state["reply"] = (
+            config.get("booking_flow", {}).get("lead_prompt")
+            or "Certainly. I can help you book an appointment.\n\nMay I know your full name?"
+        )
         return state
 
-    if any(w in message for w in SALON_INFO_WORDS):
+    if any(w in message for w in SYMPTOM_KEYWORDS):
+        state["reply"] = ask_gemini(message, business_id, state)
+        return state
+
+    if any(w in message for w in GENERIC_INFO_WORDS) or any(w in message for w in config.get("services", [])):
         state["reply"] = ask_gemini(message, business_id, state)
         return state
 
     if message in GREETING_WORDS:
-        state["reply"] = (
-            "Hello! Welcome to NAXBOT AI.\n\n"
-            "I can help you with salon services, pricing information, and appointment bookings."
+        state["reply"] = config.get("greeting") or (
+            "Hello! Welcome.\n\n"
+            "I can help you with our services, pricing information, and appointment bookings."
         )
         return state
 

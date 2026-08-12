@@ -1,0 +1,48 @@
+{
+  "business_id": "hair_salon",
+  "business_name": "Velvet Hair Studio",
+  "industry": "hair_salon",
+  "type": "booking",
+  "greeting": "Welcome to Velvet Hair Studio. I can help you with appointment bookings, hair services, hours, pricing, and support. How may I assist you today?",
+  "services": [
+    "Haircut",
+    "Hair spa",
+    "Coloring",
+    "Blowout",
+    "Hair treatment"
+  ],
+  "booking_flow": {
+    "trigger_keywords": ["appointment", "book", "booking", "schedule", "visit", "session"],
+    "fields": ["name", "phone", "service", "date", "time"],
+    "lead_prompt": "Certainly. I can help you reserve a hair appointment. May I know your full name?",
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur hair team will contact you shortly to confirm availability."
+  },
+  "faqs": [
+    {
+      "q": "what services do you offer",
+      "a": "We offer haircuts, hair spa, coloring, blowout, and hair treatment services."
+    },
+    {
+      "q": "pricing",
+      "a": "Pricing depends on the service selected and may change by package or stylist."
+    },
+    {
+      "q": "cancellation policy",
+      "a": "Please let us know at least 2 hours in advance if you need to cancel or reschedule."
+    }
+  ],
+  "opening_hours": {
+    "monday": "10:00 AM - 8:00 PM",
+    "tuesday": "10:00 AM - 8:00 PM",
+    "wednesday": "10:00 AM - 8:00 PM",
+    "thursday": "10:00 AM - 8:00 PM",
+    "friday": "10:00 AM - 8:00 PM",
+    "saturday": "10:00 AM - 6:00 PM",
+    "sunday": "Closed"
+  },
+  "cancellation_policy": "Please inform us at least 2 hours before your appointment if you need to cancel or reschedule.",
+  "staff_names": ["Kavya", "Ritika", "Hair Styling Team"],
+  "pricing": "Hair service pricing varies by treatment and stylist availability. Please share your desired service during booking.",
+  "fallback": "I can help with hair services, pricing, and appointment support. What would you like to enquire about?",
+  "tone": "friendly, polished, professional"
+}

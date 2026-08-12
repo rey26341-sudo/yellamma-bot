@@ -15,10 +15,21 @@ in it for LangGraph's own checkpoint tables.
 """
 
 import os
+from urllib.parse import urlsplit, urlunsplit
 
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
+
+
+def _checkpointer_conn_string(raw_url: str) -> str:
+    parsed = urlsplit(raw_url)
+    scheme = parsed.scheme
+
+    if scheme in {"postgresql+asyncpg", "postgresql+psycopg", "postgresql+psycopg2"}:
+        parsed = parsed._replace(scheme="postgresql")
+
+    return urlunsplit(parsed)
 
 if not DATABASE_URL:
     raise RuntimeError(
@@ -40,7 +51,9 @@ async def build_checkpointer() -> AsyncPostgresSaver:
     checkpoint tables if they don't exist yet, so it needs a Postgres
     user with CREATE TABLE permission on the target database.
     """
-    saver_cm = AsyncPostgresSaver.from_conn_string(DATABASE_URL)
+    saver_cm = AsyncPostgresSaver.from_conn_string(
+        _checkpointer_conn_string(DATABASE_URL)
+    )
     checkpointer = await saver_cm.__aenter__()
     await checkpointer.setup()
     return checkpointer, saver_cm

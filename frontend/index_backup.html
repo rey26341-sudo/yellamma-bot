@@ -76,7 +76,12 @@ async function sendMessage(){
     input.value="";
 
 
-    let response = await fetch("http://127.0.0.1:8001/chat",
+    const apiUrlParam = new URLSearchParams(window.location.search).get("api_url");
+    const chatEndpoint = apiUrlParam
+        ? (apiUrlParam.endsWith("/chat") ? apiUrlParam : `${apiUrlParam.replace(/\/$/, "")}/chat`)
+        : "/chat";
+
+    let response = await fetch(chatEndpoint,
     {
         method:"POST",
         headers:{

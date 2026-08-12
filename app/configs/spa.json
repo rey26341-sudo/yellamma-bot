@@ -1,0 +1,48 @@
+{
+  "business_id": "spa",
+  "business_name": "Serene Spa Retreat",
+  "industry": "spa",
+  "type": "booking",
+  "greeting": "Welcome to Serene Spa Retreat. I can help you with spa appointments, wellness treatments, hours, and booking support. How may I assist you today?",
+  "services": [
+    "Classic massage",
+    "Aromatherapy session",
+    "Detox ritual",
+    "Body polish",
+    "Couple spa package"
+  ],
+  "booking_flow": {
+    "trigger_keywords": ["appointment", "book", "booking", "schedule", "visit", "session"],
+    "fields": ["name", "phone", "service", "date", "time"],
+    "lead_prompt": "Certainly. I can help you book a spa session. May I know your full name?",
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur spa team will contact you shortly to confirm availability."
+  },
+  "faqs": [
+    {
+      "q": "what services do you offer",
+      "a": "We offer classic massage, aromatherapy, detox rituals, body polish, and couple spa packages."
+    },
+    {
+      "q": "opening hours",
+      "a": "We are open daily from 10:00 AM to 9:00 PM."
+    },
+    {
+      "q": "cancellation policy",
+      "a": "Please cancel or reschedule at least 4 hours in advance to avoid a service fee."
+    }
+  ],
+  "opening_hours": {
+    "monday": "10:00 AM - 9:00 PM",
+    "tuesday": "10:00 AM - 9:00 PM",
+    "wednesday": "10:00 AM - 9:00 PM",
+    "thursday": "10:00 AM - 9:00 PM",
+    "friday": "10:00 AM - 9:00 PM",
+    "saturday": "10:00 AM - 9:00 PM",
+    "sunday": "10:00 AM - 6:00 PM"
+  },
+  "cancellation_policy": "Please cancel or reschedule at least 4 hours in advance to avoid any service fee.",
+  "staff_names": ["Sonia", "Maya", "Wellness Team"],
+  "pricing": "Spa package pricing depends on treatment duration and selected service package.",
+  "fallback": "I can help with spa services, appointment bookings, pricing, and basic wellness enquiries. What do you need help with?",
+  "tone": "calm, elegant, nurturing"
+}

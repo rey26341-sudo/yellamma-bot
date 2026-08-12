@@ -38,7 +38,7 @@ from app.voice.adapters import twilio as twilio_adapter
 from app.voice.session import load_session, save_session
 
 CLINIC_NAME = "our clinic"  # e.g. "Sunrise Dental Care"
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-flash-latest"
 
 logger = logging.getLogger("voice.receptionist")
 

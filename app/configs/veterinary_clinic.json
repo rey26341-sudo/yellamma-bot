@@ -1,0 +1,48 @@
+{
+  "business_id": "veterinary_clinic",
+  "business_name": "PawCare Veterinary Clinic",
+  "industry": "veterinary_clinic",
+  "type": "booking",
+  "greeting": "Welcome to PawCare Veterinary Clinic. I can help you with appointment bookings, pet care services, clinic hours, and common questions. How may I assist you today?",
+  "services": [
+    "Routine check-up",
+    "Vaccination visit",
+    "Pet wellness review",
+    "Dental consult",
+    "Urgent assessment"
+  ],
+  "booking_flow": {
+    "trigger_keywords": ["appointment", "book", "booking", "schedule", "visit", "consultation"],
+    "fields": ["name", "phone", "service", "date", "time"],
+    "lead_prompt": "Certainly. I can help you book a veterinary appointment. May I know your full name?",
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur veterinary team will contact you shortly to confirm availability."
+  },
+  "faqs": [
+    {
+      "q": "what services do you offer",
+      "a": "We offer routine check-ups, vaccinations, wellness reviews, dental consultation, and urgent assessment support."
+    },
+    {
+      "q": "opening hours",
+      "a": "We are open Monday to Saturday from 9:00 AM to 6:00 PM."
+    },
+    {
+      "q": "cancellation policy",
+      "a": "Please let us know at least 2 hours before your visit if you need to cancel or reschedule."
+    }
+  ],
+  "opening_hours": {
+    "monday": "9:00 AM - 6:00 PM",
+    "tuesday": "9:00 AM - 6:00 PM",
+    "wednesday": "9:00 AM - 6:00 PM",
+    "thursday": "9:00 AM - 6:00 PM",
+    "friday": "9:00 AM - 6:00 PM",
+    "saturday": "10:00 AM - 2:00 PM",
+    "sunday": "Closed"
+  },
+  "cancellation_policy": "Please inform us at least 2 hours before your appointment if you need to cancel or reschedule.",
+  "staff_names": ["Dr. Kavita Rao", "Vet Nurse Lena", "Clinic Reception Team"],
+  "pricing": "Pet care service pricing depends on the selected treatment and visit type. The team can confirm the best option during booking.",
+  "fallback": "I can help with pet care services, appointment enquiries, pricing, and clinic support. What would you like to know?",
+  "tone": "compassionate, attentive, expert"
+}

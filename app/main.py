@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import logging
+import os
 
 from dotenv import load_dotenv
 
@@ -8,6 +9,14 @@ from dotenv import load_dotenv
 # variables at import time, so this has to run before those imports
 # happen below, not after.
 load_dotenv()
+
+# Normalize the Gemini credential naming across the different SDKs used
+# in this repo. Some clients read GOOGLE_API_KEY while others expect
+# GEMINI_API_KEY, so keep both aliases in sync for startup.
+if os.getenv("GEMINI_API_KEY") and not os.getenv("GOOGLE_API_KEY"):
+    os.environ["GOOGLE_API_KEY"] = os.getenv("GEMINI_API_KEY")
+elif os.getenv("GOOGLE_API_KEY") and not os.getenv("GEMINI_API_KEY"):
+    os.environ["GEMINI_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,8 +37,10 @@ from app.models.appointment import Base
 # nowhere. This makes them show up in the same console.
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s: %(message)s")
 
-# Create DB tables on startup (existing behaviour, unchanged)
-Base.metadata.create_all(bind=engine)
+
+async def create_db_tables() -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @asynccontextmanager
@@ -39,6 +50,8 @@ async def lifespan(app: FastAPI):
     # than on the first live call.
     redis_client = get_redis()
     await redis_client.ping()
+
+    await create_db_tables()
 
     # LangGraph's Postgres checkpointer — replaces the old in-memory
     # ConversationService/GeminiService session dicts. Built once

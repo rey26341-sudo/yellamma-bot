@@ -1,0 +1,48 @@
+{
+  "business_id": "medical_clinic",
+  "business_name": "NAX Medical Center",
+  "industry": "medical_clinic",
+  "type": "booking",
+  "greeting": "Welcome to NAX Medical Center. I can help you with appointments, clinic services, hours, and common enquiries. How may I assist you today?",
+  "services": [
+    "General consultation",
+    "Preventive check-up",
+    "Pediatric visits",
+    "Diagnostic lab support",
+    "Follow-up review"
+  ],
+  "booking_flow": {
+    "trigger_keywords": ["appointment", "book", "booking", "schedule", "visit", "consultation"],
+    "fields": ["name", "phone", "service", "date", "time"],
+    "lead_prompt": "Certainly. I can help you book an appointment. May I know your full name?",
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur clinic team will contact you shortly to confirm availability."
+  },
+  "faqs": [
+    {
+      "q": "what services do you offer",
+      "a": "We support general consultations, preventive check-ups, pediatric visits, diagnostics, and follow-up reviews."
+    },
+    {
+      "q": "opening hours",
+      "a": "We are open Monday to Saturday from 9:00 AM to 7:00 PM."
+    },
+    {
+      "q": "cancellation policy",
+      "a": "Please notify us at least 2 hours before your scheduled visit if you need to cancel or reschedule."
+    }
+  ],
+  "opening_hours": {
+    "monday": "9:00 AM - 7:00 PM",
+    "tuesday": "9:00 AM - 7:00 PM",
+    "wednesday": "9:00 AM - 7:00 PM",
+    "thursday": "9:00 AM - 7:00 PM",
+    "friday": "9:00 AM - 7:00 PM",
+    "saturday": "9:00 AM - 3:00 PM",
+    "sunday": "Closed"
+  },
+  "cancellation_policy": "Please notify us at least 2 hours before your appointment if you need to cancel or reschedule.",
+  "staff_names": ["Dr. Asha Menon", "Nurse Priya", "Reception Desk Team"],
+  "pricing": "Consultation pricing varies by service and may be confirmed during booking or by calling the front desk.",
+  "fallback": "I can help with appointments, clinic services, pricing, and general enquiries. Tell me what you need help with.",
+  "tone": "professional, reassuring, clear"
+}

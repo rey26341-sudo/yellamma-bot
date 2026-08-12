@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NAXBOT AI | Salon Receptionist Demo</title>
+  <title>NAXBOT AI | AI Receptionist for Clinics, Salons & Appointment-Based Businesses</title>
   <style>
     * { box-sizing: border-box; }
 
@@ -149,12 +149,21 @@
   <main class="app">
     <header class="header">
       <h1>NAXBOT AI Receptionist</h1>
-      <p>Salon appointment and customer support assistant</p>
+      <p>AI Receptionist for Clinics, Salons & Appointment-Based Businesses</p>
     </header>
 
     <section id="messages" aria-live="polite"></section>
 
     <form class="input-area" id="chatForm">
+      <select id="businessType" aria-label="Select business type" style="border:1px solid #cfc7bf; border-radius:10px; padding:13px; font-size:15px; background:white; min-width: 210px;">
+        <option value="medical_clinic">Medical Clinic</option>
+        <option value="dental_clinic">Dental Clinic</option>
+        <option value="physiotherapy">Physiotherapy</option>
+        <option value="beauty_salon">Beauty Salon</option>
+        <option value="hair_salon">Hair Salon</option>
+        <option value="spa">Spa</option>
+        <option value="veterinary_clinic">Veterinary Clinic</option>
+      </select>
       <input
         id="messageInput"
         type="text"
@@ -173,6 +182,12 @@
     const chatForm = document.getElementById("chatForm");
     const messageInput = document.getElementById("messageInput");
     const sendButton = document.getElementById("sendButton");
+    const businessType = document.getElementById("businessType");
+
+    const defaultBusinessId = new URLSearchParams(window.location.search).get("business_id") || "medical_clinic";
+    if (["medical_clinic", "dental_clinic", "physiotherapy", "beauty_salon", "hair_salon", "spa", "veterinary_clinic"].includes(defaultBusinessId)) {
+      businessType.value = defaultBusinessId;
+    }
 
     function addMessage(text, type) {
       const bubble = document.createElement("div");
@@ -189,9 +204,21 @@
     }
 
     addMessage(
-      "Hello! Welcome to NAXBOT AI.\n\nI can help you with salon services, pricing information, and appointment bookings.",
+      "Hello! Welcome to NAXBOT AI.\n\nI can help you with bookings, services, pricing information, and appointment-based enquiries.",
       "bot"
     );
+
+    function resolveChatEndpoint() {
+      const apiUrlParam = new URLSearchParams(window.location.search).get("api_url");
+
+      if (apiUrlParam) {
+        return apiUrlParam.endsWith("/chat")
+          ? apiUrlParam
+          : `${apiUrlParam.replace(/\/$/, "")}/chat`;
+      }
+
+      return "/chat";
+    }
 
     chatForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -206,13 +233,13 @@
       const typing = addMessage("Typing...", "typing");
 
       try {
-        const response = await fetch("/chat", {
+        const response = await fetch(resolveChatEndpoint(), {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            business_id: new URLSearchParams(window.location.search).get("business_id") || "salon",
+            business_id: businessType.value,
             message: message
           })
         });

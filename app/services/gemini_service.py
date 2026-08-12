@@ -8,9 +8,8 @@ load_dotenv()
 
 class GeminiService:
     def __init__(self):
-        self.client = genai.Client(
-            api_key=os.getenv("GEMINI_API_KEY")
-        )
+        api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        self.client = genai.Client(api_key=api_key)
         # In-memory session store. Swap for Redis/DB before production —
         # this resets on server restart and doesn't scale across workers.
         self._sessions = {}  # {(business_id, session_id): [{"role": "user"/"bot", "text": str}]}
@@ -136,7 +135,7 @@ Customer's new message
 {question}
 """
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-flash-latest",
             contents=prompt,
         )
         answer = response.text.strip()

@@ -100,7 +100,7 @@ engine_kwargs = {
 }
 
 if _is_postgres:
-    connect_args["ssl"] = "require" if not _is_local_host else False
+    connect_args["ssl"] = "require" if (not _is_local_host and not _IS_DEV) else False
     # asyncpg statement timeout, in the "server_settings" it accepts;
     # keeps one slow/runaway query from monopolizing a pooled connection
     connect_args["server_settings"] = {"statement_timeout": "15000"}  # ms
@@ -122,6 +122,10 @@ AsyncSessionLocal = async_sessionmaker(
     autocommit=False,
     expire_on_commit=False,
 )
+
+# Compatibility alias so older code importing SessionLocal still resolves
+# while the app continues to use AsyncSessionLocal + get_db.
+SessionLocal = AsyncSessionLocal
 
 Base = declarative_base()
 

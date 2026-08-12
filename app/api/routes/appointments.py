@@ -1,32 +1,27 @@
-from fastapi import APIRouter
-from app.database.database import SessionLocal
+from fastapi import APIRouter, Depends
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database.database import get_db
 from app.models.appointment import Appointment
 
 router = APIRouter()
 
 
 @router.get("/appointments")
-def get_appointments():
+async def get_appointments(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Appointment))
+    appointments = result.scalars().all()
 
-    db = SessionLocal()
-
-    appointments = db.query(Appointment).all()
-
-    result = []
-
-    for appointment in appointments:
-        result.append(
-            {
-                "id": appointment.id,
-                "business_id": appointment.business_id,
-                "name": appointment.name,
-                "phone": appointment.phone,
-                "service": appointment.service,
-                "date": appointment.date,
-                "time": appointment.time
-            }
-        )
-
-    db.close()
-
-    return result
+    return [
+        {
+            "id": appointment.id,
+            "business_id": appointment.business_id,
+            "name": appointment.name,
+            "phone": appointment.phone,
+            "service": appointment.service,
+            "date": appointment.date,
+            "time": appointment.time,
+        }
+        for appointment in appointments
+    ]

@@ -1,0 +1,48 @@
+{
+  "business_id": "physiotherapy",
+  "business_name": "MoveWell Physiotherapy",
+  "industry": "physiotherapy",
+  "type": "booking",
+  "greeting": "Welcome to MoveWell Physiotherapy. I can help you with appointment bookings, therapy services, opening hours, and common enquiries. How may I assist you today?",
+  "services": [
+    "Posture assessment",
+    "Sports injury rehab",
+    "Neck and back therapy",
+    "Joint mobility sessions",
+    "Recovery consultations"
+  ],
+  "booking_flow": {
+    "trigger_keywords": ["appointment", "book", "booking", "schedule", "visit", "consultation"],
+    "fields": ["name", "phone", "service", "date", "time"],
+    "lead_prompt": "Certainly. I can help you reserve a therapy session. May I know your full name?",
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur physiotherapy team will contact you shortly to confirm availability."
+  },
+  "faqs": [
+    {
+      "q": "what services do you offer",
+      "a": "We offer posture assessment, sports injury rehabilitation, neck and back therapy, joint mobility sessions, and recovery consultations."
+    },
+    {
+      "q": "opening hours",
+      "a": "We are open Monday to Friday from 8:00 AM to 7:00 PM and Saturday from 9:00 AM to 2:00 PM."
+    },
+    {
+      "q": "cancellation policy",
+      "a": "Please give at least 24 hours' notice if you need to cancel or reschedule your session."
+    }
+  ],
+  "opening_hours": {
+    "monday": "8:00 AM - 7:00 PM",
+    "tuesday": "8:00 AM - 7:00 PM",
+    "wednesday": "8:00 AM - 7:00 PM",
+    "thursday": "8:00 AM - 7:00 PM",
+    "friday": "8:00 AM - 7:00 PM",
+    "saturday": "9:00 AM - 2:00 PM",
+    "sunday": "Closed"
+  },
+  "cancellation_policy": "Please give at least 24 hours' notice before your physiotherapy session if you need to cancel or reschedule.",
+  "staff_names": ["Dr. Sneha Iyer", "Therapist Arjun", "Care Coordinator Team"],
+  "pricing": "Pricing depends on the therapy service and session length. A specialist can confirm the recommended package during booking.",
+  "fallback": "I can help with appointment enquiries, therapy services, pricing, and treatment questions. What would you like to know?",
+  "tone": "calm, helpful, supportive"
+}

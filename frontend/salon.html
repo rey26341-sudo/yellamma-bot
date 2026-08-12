@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SALON-BOT </title>
+  <title>NAXBOT AI Receptionist Demo</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -184,38 +184,47 @@
   </header>
 
   <section class="hero">
-    <h1>SALON-BOT AI RECEPTION SPOT</h1>
-    <p>Give salon customers instant answers about services, pricing and appointments — 24/7.</p>
+    <h1>NAXBOT AI RECEPTIONIST</h1>
+    <p>AI Receptionist for Clinics, Salons & Appointment-Based Businesses</p>
   </section>
 
   <main class="demo-layout">
     <section class="chat-card">
-      <div class="chat-header">SALON-BOT CHATPAGE <span>🟢</span></div>
+      <div class="chat-header">NAXBOT DEMO CHAT <span>🟢</span></div>
 
       <div id="chat">
-        <div class="message bot">👋 Welcome to salon reception spot. Ask about services, bridal packages, pricing, location or appointments.</div>
+        <div class="message bot">👋 Welcome to the NAXBOT AI receptionist demo. Ask about services, pricing, hours, booking support, or appointment enquiries.</div>
       </div>
 
       <div class="quick-actions">
-        <button onclick="quickMessage('What salon services do you offer?')">Services</button>
+        <button onclick="quickMessage('What services do you offer?')">Services</button>
         <button onclick="quickMessage('What are your prices?')">Pricing</button>
-        <button onclick="quickMessage('Tell me about bridal makeup packages')">Bridal Packages</button>
+        <button onclick="quickMessage('What are your opening hours?')">Hours</button>
         <button onclick="quickMessage('How can I book an appointment?')">Book Appointment</button>
       </div>
 
       <div class="input-area">
+        <select id="businessType" style="padding:13px; border:1px solid #ddd; border-radius:8px; min-width: 180px;">
+          <option value="medical_clinic">Medical Clinic</option>
+          <option value="dental_clinic">Dental Clinic</option>
+          <option value="physiotherapy">Physiotherapy</option>
+          <option value="beauty_salon">Beauty Salon</option>
+          <option value="hair_salon">Hair Salon</option>
+          <option value="spa">Spa</option>
+          <option value="veterinary_clinic">Veterinary Clinic</option>
+        </select>
         <input id="message" type="text" placeholder="Type your message..." onkeydown="if(event.key === 'Enter') sendMessage()">
         <button class="send-button" onclick="sendMessage()">Send</button>
       </div>
     </section>
 
     <aside class="features">
-      <h2>For Salon Owners</h2>
-      <p>Use this page to show how an AI receptionist can answer routine customer enquiries even when staff are busy with clients.</p>
+      <h2>For Appointment-Based Businesses</h2>
+      <p>Use this page to show how an AI receptionist can answer routine customer enquiries, share information, and support appointment bookings — 24/7.</p>
       <div class="feature-item">✓ Answers service and pricing questions</div>
       <div class="feature-item">✓ Supports appointment enquiries</div>
-      <div class="feature-item">✓ Available after business hours</div>
-      <div class="feature-item">✓ Can be customized with the salon’s own information</div>
+      <div class="feature-item">✓ Works across clinics, salons, and wellness businesses</div>
+      <div class="feature-item">✓ Can be customized with your own business profile</div>
     </aside>
   </main>
 
@@ -234,8 +243,21 @@
       sendMessage();
     }
 
+    function resolveChatEndpoint() {
+      const apiUrlParam = new URLSearchParams(window.location.search).get("api_url");
+
+      if (apiUrlParam) {
+        return apiUrlParam.endsWith("/chat")
+          ? apiUrlParam
+          : `${apiUrlParam.replace(/\/$/, "")}/chat`;
+      }
+
+      return "/chat";
+    }
+
     async function sendMessage() {
       const input = document.getElementById("message");
+      const businessType = document.getElementById("businessType");
       const message = input.value.trim();
 
       if (!message) return;
@@ -244,13 +266,13 @@
       input.value = "";
 
       try {
-        const response = await fetch("http://127.0.0.1:8001/chat", {
+        const response = await fetch(resolveChatEndpoint(), {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            business_id: "salon",
+            business_id: businessType.value,
             message: message
           })
         });

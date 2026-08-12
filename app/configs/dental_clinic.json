@@ -1,0 +1,48 @@
+{
+  "business_id": "dental_clinic",
+  "business_name": "BrightSmile Dental Clinic",
+  "industry": "dental_clinic",
+  "type": "booking",
+  "greeting": "Welcome to BrightSmile Dental Clinic. I can help you with appointments, dental care services, hours, and common questions. How may I assist you today?",
+  "services": [
+    "Dental check-up",
+    "Teeth cleaning",
+    "Cosmetic consultation",
+    "Cavity filling",
+    "Root canal review"
+  ],
+  "booking_flow": {
+    "trigger_keywords": ["appointment", "book", "booking", "schedule", "visit", "consultation"],
+    "fields": ["name", "phone", "service", "date", "time"],
+    "lead_prompt": "Certainly. I can help you book a dental appointment. May I know your full name?",
+    "confirmation_template": "✅ Appointment request received.\n\nName: {name}\nPhone: {phone}\nService: {service}\nDate: {date}\nTime: {time}\n\nOur dental team will contact you shortly to confirm availability."
+  },
+  "faqs": [
+    {
+      "q": "what services do you offer",
+      "a": "We offer dental check-ups, cleaning, cosmetic consultation, fillings, and root canal reviews."
+    },
+    {
+      "q": "opening hours",
+      "a": "We are open Monday to Saturday from 8:30 AM to 6:30 PM."
+    },
+    {
+      "q": "cancellation policy",
+      "a": "Please notify us at least 24 hours in advance if you need to cancel or reschedule."
+    }
+  ],
+  "opening_hours": {
+    "monday": "8:30 AM - 6:30 PM",
+    "tuesday": "8:30 AM - 6:30 PM",
+    "wednesday": "8:30 AM - 6:30 PM",
+    "thursday": "8:30 AM - 6:30 PM",
+    "friday": "8:30 AM - 6:30 PM",
+    "saturday": "9:00 AM - 2:00 PM",
+    "sunday": "Closed"
+  },
+  "cancellation_policy": "Please notify us at least 24 hours before your clinic visit if you need to cancel or reschedule.",
+  "staff_names": ["Dr. Neha Kapoor", "Dental Hygienist Ria", "Front Desk Team"],
+  "pricing": "Dental service pricing varies by procedure. Our team can share the most accurate estimate after your service request.",
+  "fallback": "I can help with appointment enquiries, dental services, pricing, and general clinic questions. What would you like to know?",
+  "tone": "warm, reassuring, efficient"
+}
