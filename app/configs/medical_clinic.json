@@ -1,5 +1,6 @@
 {
   "business_id": "medical_clinic",
+  "telegram_chat_id": "8699756233",
   "business_name": "NAX Medical Center",
   "industry": "medical_clinic",
   "type": "booking",

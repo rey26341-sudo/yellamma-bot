@@ -179,6 +179,7 @@ async def booking_node(state: ChatState) -> ChatState:
                 # app/api/routes/chat.py). business_id stays available
                 # in `state` for config/display purposes only.
                 "tenant_id": state["tenant_id"],
+                "business_id": state["business_id"],
                 "name": state.get("name") or "",
                 "phone": state.get("phone") or "",
                 "service": state.get("service") or "",
