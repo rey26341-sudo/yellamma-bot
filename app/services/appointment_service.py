@@ -68,6 +68,7 @@ class AppointmentService:
             raise ValueError("save_appointment requires tenant_id in session")
         appointment = Appointment(
             tenant_id=int(tenant_id_raw),
+            business_id=session.get("business_id") or "",
             name=session.get("name"),
             phone=session.get("phone"),
             service=session.get("service") or "Not specified",
