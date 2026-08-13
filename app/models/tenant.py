@@ -1,5 +1,3 @@
-cd ~/yellamma-bot
-cat > app/models/tenant.py << 'EOF'
 from datetime import datetime
 from sqlalchemy import String, Integer, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
@@ -36,4 +34,3 @@ class Tenant(Base):
         default=datetime.utcnow,
         nullable=False
     )
-EOF
