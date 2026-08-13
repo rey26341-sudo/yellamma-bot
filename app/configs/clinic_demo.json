@@ -1,5 +1,6 @@
 {
   "business_id": "clinic_demo",
+  "telegram_chat_id": "8699756233",
   "business_name": "Demo Family Clinic",
   "industry": "healthcare_clinic",
   "greeting": "👋 Welcome to Demo Family Clinic! I can help with opening hours, services, insurance questions, and booking an appointment. How can I help today?",
