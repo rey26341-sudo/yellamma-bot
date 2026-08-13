@@ -1,8 +1,11 @@
-"""One-time script: create a Tenant row for each business config slug."""
-import asyncio
+"""
+Ensures a Tenant row exists for each business config slug. Safe to
+call on every startup — skips any slug that already has a row, so it
+never duplicates or overwrites existing tenants.
+"""
+from sqlalchemy import select
 from app.database.database import session_scope
 from app.models.tenant import Tenant
-from sqlalchemy import select
 
 BUSINESS_SLUGS = [
     ("medical_clinic", "NAX Medical Center"),
@@ -15,15 +18,16 @@ BUSINESS_SLUGS = [
     ("clinic_demo", "Demo Family Clinic"),
 ]
 
-async def main():
+
+async def seed_tenants() -> None:
     async with session_scope() as db:
         for slug, name in BUSINESS_SLUGS:
             existing = await db.execute(select(Tenant).where(Tenant.slug == slug))
             if existing.scalar_one_or_none():
-                print(f"skip (exists): {slug}")
                 continue
             db.add(Tenant(slug=slug, name=name, plan="free", is_active=True))
-            print(f"created: {slug}")
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import asyncio
+    asyncio.run(seed_tenants())

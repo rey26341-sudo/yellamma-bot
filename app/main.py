@@ -31,6 +31,7 @@ from app.voice import receptionist as voice_router
 from app.voice.session import get_redis
 from app.database.database import engine
 from app.models.appointment import Base
+from seed_tenants import seed_tenants
 
 # uvicorn doesn't configure the root logger by default, so custom
 # loggers (like app.voice's TIMING logs) would otherwise print
@@ -52,6 +53,7 @@ async def lifespan(app: FastAPI):
     await redis_client.ping()
 
     await create_db_tables()
+    await seed_tenants()
 
     # LangGraph's Postgres checkpointer — replaces the old in-memory
     # ConversationService/GeminiService session dicts. Built once
