@@ -15,45 +15,29 @@ in it for LangGraph's own checkpoint tables.
 """
 
 import os
-from urllib.parse import urlsplit, urlunsplit
+from contextlib import asynccontextmanager
 
+# Add this import at the top
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+async def build_checkpointer():
+    app_env = os.getenv("APP_ENV", "dev")
+    db_url = os.getenv("DATABASE_URL")
 
+    if app_env == "dev" or "sqlite" in db_url:
+        # 1. Clean the SQLAlchemy URL to get a standard file path for raw SQLite
+        # Converts "sqlite+aiosqlite:///./yellamma.dev.db" to "./yellamma.dev.db"
+        sqlite_path = db_url.replace("sqlite+aiosqlite:///", "").replace("sqlite:///", "")
 
-def _checkpointer_conn_string(raw_url: str) -> str:
-    parsed = urlsplit(raw_url)
-    scheme = parsed.scheme
+        # 2. Use the SqliteSaver
+        saver_cm = AsyncSqliteSaver.from_conn_string(sqlite_path)
+    else:
+        # Use PostgresSaver for production
+        # Note: psycopg requires postgresql:// not postgresql+asyncpg://
+        postgres_url = db_url.replace("+asyncpg", "")
+        saver_cm = AsyncPostgresSaver.from_conn_string(postgres_url)
 
-    if scheme in {"postgresql+asyncpg", "postgresql+psycopg", "postgresql+psycopg2"}:
-        parsed = parsed._replace(scheme="postgresql")
-
-    return urlunsplit(parsed)
-
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL is not set — required for the LangGraph Postgres "
-        "checkpointer. Check your .env file."
-    )
-
-
-async def build_checkpointer() -> AsyncPostgresSaver:
-    """
-    Call once at app startup (see app/main.py's lifespan). Returns an
-    open AsyncPostgresSaver — the caller is responsible for keeping
-    its context alive for the app's lifetime and closing it on
-    shutdown.
-
-    NOTE: this has not been run against a live Postgres instance yet.
-    The first time you start the app after this change, watch for
-    errors here specifically — `.setup()` creates LangGraph's own
-    checkpoint tables if they don't exist yet, so it needs a Postgres
-    user with CREATE TABLE permission on the target database.
-    """
-    saver_cm = AsyncPostgresSaver.from_conn_string(
-        _checkpointer_conn_string(DATABASE_URL)
-    )
     checkpointer = await saver_cm.__aenter__()
-    await checkpointer.setup()
+    await checkpointer.setup() # Initialize checkpointer tables
     return checkpointer, saver_cm

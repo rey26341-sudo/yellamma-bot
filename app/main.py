@@ -1,94 +1,110 @@
-from contextlib import asynccontextmanager
-import logging
+import sqlite3
+import datetime
 import os
+import sys
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import Optional, Dict
+from google import genai
+from google.genai import types
 
-from dotenv import load_dotenv
+app = FastAPI(title="Yellamma Multi-Tenant AI Booking Engine")
 
-# Load .env FIRST, before any other app import — several modules
-# (app.core.checkpointer, app.voice.session, etc.) read environment
-# variables at import time, so this has to run before those imports
-# happen below, not after.
-load_dotenv()
+DB_PATH = "yellamma.dev.db"
 
-# Normalize the Gemini credential naming across the different SDKs used
-# in this repo. Some clients read GOOGLE_API_KEY while others expect
-# GEMINI_API_KEY, so keep both aliases in sync for startup.
-if os.getenv("GEMINI_API_KEY") and not os.getenv("GOOGLE_API_KEY"):
-    os.environ["GOOGLE_API_KEY"] = os.getenv("GEMINI_API_KEY")
-elif os.getenv("GOOGLE_API_KEY") and not os.getenv("GEMINI_API_KEY"):
-    os.environ["GEMINI_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+class ChatRequest(BaseModel):
+    business_id: Optional[str] = None
+    tenant_slug: Optional[str] = None
+    message: str
+    session_id: Optional[str] = "default_user"
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+def get_tenant_info(slug: str):
+    if not os.path.exists(DB_PATH):
+        return None, []
 
-from app.api.routes.appointments import router as appointments_router
-from app.api.routes.chat import router as chat_router
-from app.core.checkpointer import build_checkpointer
-from app.core.graph import build_graph
-from app.voice import receptionist as voice_router
-from app.voice.session import get_redis
-from app.database.database import engine
-from app.models.appointment import Base
-from seed_tenants import seed_tenants
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
 
-# uvicorn doesn't configure the root logger by default, so custom
-# loggers (like app.voice's TIMING logs) would otherwise print
-# nowhere. This makes them show up in the same console.
-logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s: %(message)s")
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = [row[0] for row in cursor.fetchall()]
 
+    tenant = None
+    services = []
 
-async def create_db_tables() -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    if "tenants" in tables:
+        cursor.execute("SELECT id, name FROM tenants WHERE slug = ?", (slug,))
+        tenant = cursor.fetchone()
+        if not tenant:
+            cursor.execute("SELECT id, name FROM tenants LIMIT 1")
+            tenant = cursor.fetchone()
 
+    if tenant and "services" in tables:
+        tenant_id, tenant_name = tenant[0], tenant[1]
+        cursor.execute("PRAGMA table_info(services);")
+        columns = [col[1] for col in cursor.fetchall()]
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Warm up the Redis connection used by the voice receptionist's
-    # session store, and fail fast at boot if it's unreachable rather
-    # than on the first live call.
-    redis_client = get_redis()
-    await redis_client.ping()
+        if "tenant_slug" in columns:
+            cursor.execute("SELECT name, price, duration, description FROM services WHERE tenant_slug = ?", (slug,))
+        elif "tenant_id" in columns:
+            cursor.execute("SELECT name, price, duration, description FROM services WHERE tenant_id = ?", (tenant_id,))
+        else:
+            cursor.execute("SELECT name, price, duration, description FROM services")
 
-    await create_db_tables()
-    await seed_tenants()
+        services = cursor.fetchall()
 
-    # LangGraph's Postgres checkpointer — replaces the old in-memory
-    # ConversationService/GeminiService session dicts. Built once
-    # here and stored on app.state, not per-request.
-    checkpointer, checkpointer_cm = await build_checkpointer()
-    app.state.chat_graph = build_graph(checkpointer)
+    conn.close()
+    return tenant, services
 
-    yield
+@app.post("/chat")
+async def chat_endpoint(req: ChatRequest):
+    slug = req.business_id or req.tenant_slug or "medical_clinic"
+    tenant, services = get_tenant_info(slug)
 
-    await redis_client.close()
-    await checkpointer_cm.__aexit__(None, None, None)
+    tenant_name = tenant[1] if tenant else slug.replace("_", " ").title()
+    services_list_str = "\n".join([f"- {s[0]}: ${s[1]} ({s[2]} mins) - {s[3]}" for s in services]) if services else "General Consultation - $50 (30 mins)"
 
+    today_str = datetime.date.today().strftime("%Y-%m-%d")
+    tomorrow_str = (datetime.date.today() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
 
-app = FastAPI(title="Yellamma AI Receptionist", lifespan=lifespan)
+    system_instruction = f"""
+You are an AI booking assistant for '{tenant_name}'.
+Today's date is: {today_str} (Tomorrow is {tomorrow_str}).
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+Available Services & Pricing:
+{services_list_str}
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+Instructions:
+1. Help the user schedule an appointment or answer questions about services.
+2. If the user mentions symptoms (e.g., cold, fever, cough), recommend a General Consultation or suitable service.
+3. Collect the following details to confirm a booking: Name, Phone Number, Service, Date, and Time.
+4. Convert relative dates (e.g., "tomorrow") into exact dates (YYYY-MM-DD) relative to today ({today_str}).
+5. Ask naturally for missing details.
+"""
 
-app.include_router(chat_router)
-app.include_router(appointments_router)
-app.include_router(voice_router.router)
+    raw_key = os.environ.get("GEMINI_API_KEY", "").strip().strip('"').strip("'")
+    if not raw_key:
+        print("[ERROR] GEMINI_API_KEY environment variable is empty!", file=sys.stderr)
+        fallback_reply = "[API Key Missing] Please set GEMINI_API_KEY in your terminal environment."
+        return {"reply": fallback_reply, "response": fallback_reply, "session_id": req.session_id}
 
+    try:
+        # Initialize Google GenAI client explicitly with key
+        client = genai.Client(api_key=raw_key)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=f"User Message: {req.message}",
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.2
+            )
+        )
+        reply_text = response.text.strip()
+        return {"reply": reply_text, "response": reply_text, "session_id": req.session_id}
+    except Exception as e:
+        print(f"[GEMINI API EXCEPTION] {e}", file=sys.stderr)
+        fallback_reply = f"Error processing request: {str(e)}"
+        return {"reply": fallback_reply, "response": fallback_reply, "session_id": req.session_id}
 
-@app.get("/")
-def root():
-    return FileResponse("static/index.html")
-
-
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8005)

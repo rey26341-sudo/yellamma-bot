@@ -3,280 +3,153 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI NAXBOT | AI Receptionist Solutions</title>
-
+  <title>Multi-Tenant Bot Demo | nachinaxbot.tech</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { display: flex; flex-direction: column; height: 100vh; background: #0f172a; color: #f8fafc; }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #faf7f2;
-      color: #2f2f2f;
-    }
-
-    header {
-      background: #ffffff;
-      padding: 20px 8%;
+    /* Top Header Bar */
+    #demo-header {
+      background: #1e293b;
+      padding: 12px 24px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+      align-items: center;
+      border-bottom: 1px solid #334155;
     }
-
-    .logo {
-      font-size: 26px;
-      font-weight: 700;
-    }
-
-    nav {
-      display: flex;
-      gap: 24px;
-    }
-
-    nav a {
-      color: #333;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    nav a:hover {
-      color: #7c4dff;
-    }
-
-    .hero {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 90px 20px 70px;
-      text-align: center;
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-size: 48px;
-      line-height: 1.15;
-    }
-
-    .hero p {
-      max-width: 700px;
-      margin: 22px auto 30px;
-      color: #5d5d5d;
-      font-size: 20px;
-      line-height: 1.5;
-    }
-
-    .primary-button {
-      display: inline-block;
-      border: none;
-      border-radius: 9px;
-      background: #8b5cf6;
-      color: #ffffff;
-      padding: 15px 28px;
-      font-size: 17px;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: transform 0.2s ease, background 0.2s ease;
-    }
-
-    .primary-button:hover {
-      background: #7445e8;
-      transform: translateY(-2px);
-    }
-
-    .section {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 55px 20px 75px;
-      text-align: center;
-    }
-
-    .section h2 {
-      margin: 0 0 32px;
-      font-size: 32px;
-    }
-
-    .cards {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-
-    .card {
-      width: 290px;
-      min-height: 190px;
-      padding: 30px 24px;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
-      text-align: left;
-    }
-
-    .card h3 {
-      margin: 0 0 14px;
-      font-size: 22px;
-    }
-
-    .card p {
-      margin: 0;
-      color: #5d5d5d;
-      line-height: 1.55;
-    }
-
-    .card-link {
-      display: inline-block;
-      margin-top: 20px;
-      color: #7c4dff;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .contact-section {
-      padding: 65px 20px;
-      background: #2e1a47;
-      color: #ffffff;
-      text-align: center;
-    }
-
-    .contact-section h2 {
-      margin: 0 0 14px;
-      font-size: 32px;
-    }
-
-    .contact-section p {
-      margin: 0 auto 25px;
-      max-width: 650px;
-      color: #e6dcff;
-      font-size: 18px;
-      line-height: 1.5;
-    }
-
-    .contact-button {
-      display: inline-block;
-      padding: 14px 24px;
-      border-radius: 9px;
-      background: #ffffff;
-      color: #4c2b7d;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    footer {
-      padding: 22px;
-      background: #ffffff;
-      color: #666;
-      text-align: center;
+    .header-title { font-size: 16px; font-weight: 600; color: #38bdf8; }
+    .tenant-select {
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid #475569;
+      padding: 8px 16px;
+      border-radius: 6px;
       font-size: 14px;
+      cursor: pointer;
     }
 
-    @media (max-width: 700px) {
-      header {
-        padding: 18px 20px;
-      }
+    /* Main Split Screen Container */
+    #main-container { display: flex; flex: 1; overflow: hidden; }
 
-      nav {
-        gap: 14px;
-      }
-
-      nav a {
-        font-size: 14px;
-      }
-
-      .logo {
-        font-size: 21px;
-      }
-
-      .hero {
-        padding: 65px 20px 50px;
-      }
-
-      .hero h1 {
-        font-size: 36px;
-      }
-
-      .hero p {
-        font-size: 17px;
-      }
-
-      .section h2,
-      .contact-section h2 {
-        font-size: 28px;
-      }
+    /* Left Panel: Chat Placeholder Area */
+    #chat-preview-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      border-right: 1px solid #334155;
     }
+
+    /* Right Panel: Live Backend Event Drawer */
+    #side-panel {
+      width: 400px;
+      background: #1e293b;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #334155;
+    }
+    .panel-header {
+      padding: 16px;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #feed-logs { flex: 1; padding: 16px; overflow-y: auto; }
+    .event-card {
+      background: #0f172a;
+      border-left: 4px solid #10b981;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .event-time { color: #94a3b8; font-size: 11px; margin-bottom: 4px; }
+    .event-payload { background: #1e293b; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 12px; color: #38bdf8; margin-top: 6px; }
   </style>
 </head>
-
 <body>
-  <header>
-    <div class="logo"> NAXBOT AI</div>
 
-    <nav>
-      <a href="/">Home</a>
-      <a href="#solutions">Solutions</a>
-      <a href="#contact">Contact</a>
-    </nav>
+  <!-- STEP 2: Demo Header Dropdown Switcher -->
+  <header id="demo-header">
+    <div class="header-title">⚡ nachinaxbot.tech Multi-Tenant Engine</div>
+    <div>
+      <label for="tenant-dropdown" style="margin-right: 8px; font-size: 14px; color: #94a3b8;">Select Demo Tenant:</label>
+      <select id="tenant-dropdown" class="tenant-select" onchange="switchTenant(this.value)">
+        <option value="city-care-clinic">🏥 City Care Clinic (Healthcare)</option>
+        <option value="prime-realty">🏡 Prime Realty (Real Estate)</option>
+      </select>
+    </div>
   </header>
 
-  <main>
-    <section class="hero">
-      <h1>AI Receptionist for Clinics, Salons & Appointment-Based Businesses</h1>
+  <!-- Split Screen Layout -->
+  <div id="main-container">
+    <div id="chat-preview-area">
+      <h2 id="current-tenant-title">City Care Clinic</h2>
+      <p style="color: #94a3b8; margin-top: 8px;">Chat widget is loaded in the bottom corner configured for this tenant.</p>
+    </div>
 
-      <p>
-        NAXBOT AI helps appointment-based businesses answer customer enquiries,
-        support bookings, and provide instant information around the clock.
-      </p>
-
-      <a class="primary-button" href="salon.html">Try NAXBOT Demo</a>
-    </section>
-
-    <section id="solutions" class="section">
-      <h2>AI Solutions</h2>
-
-      <div class="cards">
-        <article class="card">
-          <h3>🏥 Clinics</h3>
-          <p>
-            Support patients with service details, appointment enquiries, hours, and clinic information.
-          </p>
-          <a class="card-link" href="salon.html">Try NAXBOT AI →</a>
-        </article>
-
-        <article class="card">
-          <h3>💇 Salons & Wellness</h3>
-          <p>
-            Help customers ask about treatments, pricing, hours, and booking support across beauty and spa businesses.
-          </p>
-          <a class="card-link" href="salon.html">Try NAXBOT AI →</a>
-        </article>
-
-        <article class="card">
-          <h3>📦 Export & Trade</h3>
-          <p>
-            Answer product, MOQ, shipping and customer enquiries for export businesses.
-          </p>
-          <a class="card-link" href="#contact">Coming soon →</a>
-        </article>
+    <!-- STEP 3: Live Backend Action Drawer -->
+    <div id="side-panel">
+      <div class="panel-header">
+        <span>📡 Live Backend Event Feed</span>
+        <button onclick="clearLogs()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px;">Clear</button>
       </div>
-    </section>
+      <div id="feed-logs">
+        <!-- Event cards will be inserted dynamically -->
+      </div>
+    </div>
+  </div>
 
-    <section id="contact" class="contact-section">
-      <h2>Want an AI assistant for your business?</h2>
-      <p>
-        NAXBOT AI can be customized with your business services, prices,
-        operating hours, location and customer-support workflow.
-      </p>
+  <script>
+    let currentTenant = 'city-care-clinic';
 
-      <a class="contact-button" href="mailto:nachinaxsolutions@gmail.com">
-        Request a Demo
-      </a>
-    </section>
-  </main>
+    // Dynamic Tenant Switcher Function
+    function switchTenant(tenantId) {
+      currentTenant = tenantId;
+      const isClinic = tenantId === 'city-care-clinic';
 
-  <footer>
-    © 2026 YELLAMMA-ENGINE ---NACHI NAXBOT AI 
-  </footer>
+      // Update UI Titles & Theme Colors
+      document.getElementById('current-tenant-title').innerText = isClinic ? 'City Care Clinic' : 'Prime Realty';
+      const themeColor = isClinic ? '#0e7490' : '#b45309';
+
+      // Re-initialize YellammaBot Widget instance
+      if (window.YellammaBot && typeof window.YellammaBot.init === 'function') {
+        YellammaBot.init({
+          tenantId: tenantId,
+          apiEndpoint: "https://api.nachinaxbot.tech/v1/chat",
+          themeColor: themeColor
+        });
+      }
+
+      // Log event to side panel for presentation effect
+      logBackendEvent('TENANT_ENVIRONMENT_SWITCHED', { tenantId, themeColor });
+    }
+
+    // Function to render real-time backend cards to side drawer
+    function logBackendEvent(eventType, payload) {
+      const logsContainer = document.getElementById('feed-logs');
+      const card = document.createElement('div');
+      card.className = 'event-card';
+      card.innerHTML = `
+        <div class="event-time">${new Date().toLocaleTimeString()} - <strong>${eventType}</strong></div>
+        <div class="event-payload">${JSON.stringify(payload, null, 2)}</div>
+      `;
+      logsContainer.prepend(card);
+    }
+
+    function clearLogs() {
+      document.getElementById('feed-logs').innerHTML = '';
+    }
+
+    // Initialize with default tenant on startup
+    document.addEventListener("DOMContentLoaded", () => {
+      switchTenant('city-care-clinic');
+    });
+  </script>
 </body>
 </html>
